@@ -15,5 +15,14 @@ class Utils:
             return "year"
         return "all"
 
-    def in_timeframe(self, submission_date,from_date,to_date):
-        return from_date <= submission_date <= to_date
+
+class Timeframe:
+    def __init__(self, from_date, to_date) -> None:
+        self.from_date = from_date
+        self.to_date   = to_date
+        pass
+
+    def is_in_timeframe(self, submission_date):
+        return self.from_date <= submission_date <= self.to_date
+
+    
