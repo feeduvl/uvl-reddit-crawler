@@ -1,5 +1,5 @@
-
-
+import praw
+ 
 from datetime import datetime
 #from utils import Timeframe
 
@@ -10,7 +10,8 @@ class SubmissionWrapper:
         self.timeframe = timeframe
         self.title = self.__check_title(submission.title)
         self.selftext = self.__check_selftext(submission.selftext)
-        self.comments = self.__check_comments(submission.comments.list())
+#        self.comments = self.__check_comments(submission.comments.list())
+        self.comments = self.__check_comments_with_level(submission)
 
     def __check_title(self, title):
         return title
@@ -25,10 +26,31 @@ class SubmissionWrapper:
         for comment in comments:       # pythonic refactoring required
             try:
                 if len(comment.body) > 5:  # arbitrary min length (tbd)
-                    checked_comments.append(comment)
+                    checked_comments.append(comment.body)
             except AttributeError:
                 continue
         return checked_comments
+
+    def __check_comments_with_level(self,submission):
+        check_comments = []
+        comment_level = 1
+
+        submission.comments.replace_more(limit=None)
+        comment_queue = submission.comments[:]  # Seed with top-level
+
+        comments_exist = True
+        while comments_exist:
+            next_level_comments = []
+            for comment in comment_queue:
+                check_comments.append(f'comment lvl {comment_level}: {comment.body}')
+                next_level_comments.extend(comment.replies)
+            if len(next_level_comments) > 0:
+                comment_queue = next_level_comments
+                comment_level += 1
+            else:
+                comments_exist = False
+        return check_comments
+
 
     def __check_submission(self,submission):
         submission_date = datetime.utcfromtimestamp(int(submission.created_utc)).date()
@@ -41,10 +63,7 @@ class SubmissionWrapper:
         submission_text = self.selftext
         submission_comments = []
         for comment in self.comments:
-            try:
-                submission_comments.append(comment.body)
-            except AttributeError:
-                continue
+            submission_comments.append(comment)
         return submission_title, submission_text, submission_comments
 
     def get(self):

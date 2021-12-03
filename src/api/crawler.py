@@ -3,14 +3,12 @@ import pymongo
 import logging
 from datetime import date, datetime
 from utils import Utils, Timeframe
-from preprocessor import PreprocessingEngine
 from submission_wrapper import SubmissionWrapper
 
 class RedditCrawler:
-    def __init__(self, reddit_instance, database_client, preprocessor) -> None:
+    def __init__(self, reddit_instance, database_client) -> None:
         self.reddit = reddit_instance
         self.database_client = database_client
-        self.preprocessor = preprocessor
         self.utilities = Utils()
 
     
@@ -43,13 +41,12 @@ class DBColumnMock:
     def insert_many(self,documents):
         print(f'Objects found: {len(documents)}')
         for document in documents:
-            print("-----------------------------------------------------------------------")
-            print(f'Submission: {document["title"]}')
-            print("-----------------------------------------------------------------------")
-            print(document["text"])
+            logging.info("-----------------------------------------------------------------------")
+            logging.info(f'Submission: {document["title"]}')
+            logging.info("-----------------------------------------------------------------------")
+            logging.info(document["text"])
             for index, comment in enumerate(document["comments"]):
-                print(f'Comment No. {index+1}')
-                print(comment)
+                logging.info(comment)
 
 class DBMock:
     def __getitem__(self,arg):
@@ -67,9 +64,8 @@ if __name__ == "__main__":
     )
 
     database_client = DBMock()
-    preprocessor = PreprocessingEngine()
-    crawler = RedditCrawler(reddit, database_client, preprocessor)
-    subreddit = "vim"
+    crawler = RedditCrawler(reddit, database_client)
+    subreddit = "spotify"
     from_date = "13112021"
     to_date = "28112021"
 
