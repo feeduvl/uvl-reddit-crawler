@@ -32,7 +32,6 @@ class RedditCrawler:
         logging.info(f'Number of submissions found:    {submission_counter+1}')
         logging.info(f'Number of submissions accepted: {accept_counter}')
 
-        # buffering?        
         db_column.insert_many(documents)
         pass
 

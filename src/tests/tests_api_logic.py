@@ -89,7 +89,6 @@ class TestPreprocessing(unittest.TestCase):
         comments_mock.list.return_value = comments_mock_return_list
 
         submission_mock.comments = comments_mock
-        print("fgdfg")
         return submission_mock
 
     def test_submission_valid(self):
@@ -111,9 +110,13 @@ class TestPreprocessing(unittest.TestCase):
         submission_wrapper_instance = SubmissionWrapper(submission_mock,self.timeframe_mock)
         self.assertEqual(len(submission_wrapper_instance.comments),2, f'Comment filtering failed: {submission_wrapper_instance.comments}')
 
+    def test_blacklisting_post(self):
+        submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_long,comments=self.comments_two_valid)
+        
+        submission_wrapper_instance = SubmissionWrapper(submission_mock, self.timeframe_mock)
 
-
-    
+    def test_blacklisting_comment(self):
+        pass
 
 
 if __name__ == '__main__':
