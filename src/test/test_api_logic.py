@@ -6,8 +6,10 @@ import datetime
 import sys
 sys.path.append("..")
 
-from uvl_reddit_crawler.src.api.utils import Utils, Timeframe
-from uvl_reddit_crawler.src.api.submission_wrapper import SubmissionWrapper
+#from utils import Utils, Timeframe
+#from submission_wrapper import SubmissionWrapper
+from src.api.utils import Utils, Timeframe
+from src.api.submission_wrapper import SubmissionWrapper
 
 class TestUtils(unittest.TestCase):
     
@@ -62,10 +64,13 @@ class TestUtils(unittest.TestCase):
 
 class TestPreprocessing(unittest.TestCase):
     title_long            = "this is a title of a reddit submission"
-    submission_text_long  = "this is the textbody of a reddit submissoin which is longer than 20 characters"
+    submission_text_long  = "this is the textbody of a reddit submission which is longer than 20 characters"
+    blacklist_word        = "abcdefg"
+    submission_text_med   = "this is the textbody of a reddit submission which contains a blacklisted word: " + blacklist_word
     submission_text_short = "too short"
     comments_all_valid    = ["comment A", "comment B", "comment C"]
     comments_two_valid    = ["comment A", "---", "comment C"]
+    comments_blacklist     = ["comment A", blacklist_word, "comment C"]
 
     def setUp(self) -> None:
         self.timeframe_mock = MagicMock()
@@ -94,29 +99,43 @@ class TestPreprocessing(unittest.TestCase):
     def test_submission_valid(self):
         submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_long,comments=self.comments_all_valid)
 
-        submission_wrapper_instance = SubmissionWrapper(submission_mock,self.timeframe_mock)
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.create(submission_mock)
         self.assertTrue(submission_wrapper_instance.valid)
 
     def test_submission_invalid(self):
         submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_short,comments=self.comments_all_valid)
 
-        submission_wrapper_instance = SubmissionWrapper(submission_mock,self.timeframe_mock)
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.set_minimum_lengths(post_length=20)
+        submission_wrapper_instance.create(submission_mock)
         self.assertFalse(submission_wrapper_instance.valid)
 
 
     def test_comment_filter(self):
         submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_long,comments=self.comments_two_valid)
         
-        submission_wrapper_instance = SubmissionWrapper(submission_mock,self.timeframe_mock)
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.set_minimum_lengths(comment_length=5)
+        submission_wrapper_instance.create(submission_mock)
         self.assertEqual(len(submission_wrapper_instance.comments),2, f'Comment filtering failed: {submission_wrapper_instance.comments}')
 
     def test_blacklisting_post(self):
-        submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_long,comments=self.comments_two_valid)
+        submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_med,comments=self.comments_all_valid)
         
-        submission_wrapper_instance = SubmissionWrapper(submission_mock, self.timeframe_mock)
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.set_blacklists(list_posts=[self.blacklist_word])
+        submission_wrapper_instance.create(submission_mock)
+        self.assertFalse(submission_wrapper_instance.valid)
 
     def test_blacklisting_comment(self):
-        pass
+        submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_long,comments=self.comments_blacklist)
+        
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.set_blacklists(list_comments=[self.blacklist_word])
+        submission_wrapper_instance.create(submission_mock)
+        self.assertEqual(len(submission_wrapper_instance.comments),2, f'Comment blacklisting failed: {submission_wrapper_instance.comments}')
+        
 
 
 if __name__ == '__main__':

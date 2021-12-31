@@ -18,12 +18,16 @@ class RedditCrawler:
         from_date = datetime.strptime(from_date_str, "%d%m%Y").date()
         to_date   = datetime.strptime(to_date_str, "%d%m%Y").date()    
         timeframe = Timeframe(from_date,to_date)
+
+        submission_wrapped = SubmissionWrapper(timeframe)
+        submission_wrapped.set_minimum_lengths(5, 200)
+        submission_wrapped.set_blacklists([],[])
         
         accept_counter = 0
         documents = []
         
         for submission_counter, submission in enumerate(subreddit.top(self.utilities.get_time_qualifier(from_date))):
-            submission_wrapped = SubmissionWrapper(submission,timeframe)
+            submission_wrapped.create(submission)
             
             if submission_wrapped.valid:
                 documents.append(submission_wrapped.get())

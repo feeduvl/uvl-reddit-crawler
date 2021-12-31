@@ -5,27 +5,59 @@ from datetime import datetime
 
 
 class SubmissionWrapper:
-    def __init__(self, submission, timeframe) -> None:
-        self.valid = True
+    def __init__(self, timeframe) -> None:
         self.timeframe = timeframe
+        self.comment_length = -1
+        self.post_length = -1
+        self.comment_level = -1
+        self.blacklist_comments = []
+        self.blacklist_posts = []
+        self.url_placeholder = ""
+        self.special_char_placeholder = ""
+
+    def set_minimum_lengths(self, comment_length=-1, post_length=-1):
+        self.comment_length = comment_length
+        self.post_length = post_length
+
+    def set_blacklists(self, list_comments=[], list_posts=[]):
+        self.blacklist_comments =  list_comments
+        self.blacklist_posts = list_posts
+
+    def set_placeholders(self, url_placeholder, char_placeholder):
+        self.url_placeholder = url_placeholder
+        self.special_char_placeholder = char_placeholder
+
+    def create(self, submission):
+        self.valid = True
         self.title = self.__check_title(submission.title)
         self.selftext = self.__check_selftext(submission.selftext)
-#        self.comments = self.__check_comments(submission.comments.list())
-        self.comments = self.__check_comments_with_level(submission)
+        self.comments = self.__check_comments(submission.comments.list())
+        #self.comments = self.__check_comments_with_level(submission)
 
     def __check_title(self, title):
         return title
 
     def __check_selftext(self, selftext):
-        if len(selftext) < 20:
+        if len(selftext) < self.post_length and self.post_length >= 0:
             self.valid = False
+            return selftext
+        for blacklisted_word in self.blacklist_posts:
+            if blacklisted_word in selftext:
+                self.valid = False
+                return selftext
         return selftext
 
     def __check_comments(self,comments):
         checked_comments = []
         for comment in comments:       # pythonic refactoring required
+            comment_valid = True
             try:
-                if len(comment.body) > 5:  # arbitrary min length (tbd)
+                if len(comment.body) < self.comment_length and self.comment_length >= 0:
+                    comment_valid = False
+                for blacklisted_word in self.blacklist_comments:
+                    if blacklisted_word in comment.body:
+                        comment_valid = False
+                if comment_valid:
                     checked_comments.append(comment.body)
             except AttributeError:
                 continue
