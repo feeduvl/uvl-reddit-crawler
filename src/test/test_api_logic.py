@@ -68,6 +68,7 @@ class TestPreprocessing(unittest.TestCase):
     blacklist_word        = "abcdefg"
     submission_text_med   = "this is the textbody of a reddit submission which contains a blacklisted word: " + blacklist_word
     submission_text_short = "too short"
+    submission_text_url = "this is a submission text that contains the URL www.reddit.com/r/subreddit for replacing"
     comments_all_valid    = ["comment A", "comment B", "comment C"]
     comments_two_valid    = ["comment A", "---", "comment C"]
     comments_blacklist     = ["comment A", blacklist_word, "comment C"]
@@ -136,7 +137,15 @@ class TestPreprocessing(unittest.TestCase):
         submission_wrapper_instance.create(submission_mock)
         self.assertEqual(len(submission_wrapper_instance.comments),2, f'Comment blacklisting failed: {submission_wrapper_instance.comments}')
         
+    def test_url_replacing(self):
+        replace_string = "<url>"
+        submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_url,comments=self.comments_all_valid)
 
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.set_placeholders(url_placeholder=replace_string)
+        submission_wrapper_instance.create(submission_mock)
+
+        self.assertTrue(replace_string in submission_wrapper_instance.selftext, f'URL replacing failed: {submission_wrapper_instance.selftext}')
 
 if __name__ == '__main__':
     unittest.main()

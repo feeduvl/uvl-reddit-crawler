@@ -1,4 +1,5 @@
 import praw
+import re
  
 from datetime import datetime
 #from utils import Timeframe
@@ -23,7 +24,8 @@ class SubmissionWrapper:
         self.blacklist_comments =  list_comments
         self.blacklist_posts = list_posts
 
-    def set_placeholders(self, url_placeholder, char_placeholder):
+    def set_placeholders(self, url_placeholder="", char_placeholder=""):
+        # add check if parameter was supplied and if replacement is necessary
         self.url_placeholder = url_placeholder
         self.special_char_placeholder = char_placeholder
 
@@ -38,6 +40,8 @@ class SubmissionWrapper:
         return title
 
     def __check_selftext(self, selftext):
+        if self.url_placeholder != "": #refine
+            selftext = self.__replace_urls(selftext)
         if len(selftext) < self.post_length and self.post_length >= 0:
             self.valid = False
             return selftext
@@ -105,4 +109,10 @@ class SubmissionWrapper:
         documents.append(document)
         return document
 
-    
+    def __replace_urls(self, textbody):
+        # https://stackoverflow.com/questions/6038061/regular-expression-to-find-urls-within-a-string
+        url_regex = "(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])"
+        return re.sub(url_regex, self.url_placeholder, textbody)
+
+    def __replace_special_chars(self, textbody):
+        return re.sub("TODO", "TODO", textbody)
