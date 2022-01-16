@@ -2,8 +2,8 @@ import praw
 import pymongo
 import logging
 from datetime import date, datetime
-from utils import Utils, Timeframe
-from submission_wrapper import SubmissionWrapper
+from src.api.utils import Utils, Timeframe
+from src.api.submission_wrapper import SubmissionWrapper
 
 class RedditCrawler:
     def __init__(self, reddit_instance, database_client) -> None:
@@ -12,7 +12,7 @@ class RedditCrawler:
         self.utilities = Utils()
 
     
-    def crawl(self, subreddit_name, from_date_str, to_date_str):
+    def crawl(self, subreddit_name, from_date_str, to_date_str, min_length_comments, min_length_posts, blacklist_comments, blacklist_posts):
         subreddit = self.reddit.subreddit(subreddit_name)
         db_column = self.database_client[subreddit_name]
         from_date = datetime.strptime(from_date_str, "%d%m%Y").date()
@@ -20,8 +20,8 @@ class RedditCrawler:
         timeframe = Timeframe(from_date,to_date)
 
         submission_wrapped = SubmissionWrapper(timeframe)
-        submission_wrapped.set_minimum_lengths(5, 200)
-        submission_wrapped.set_blacklists([],[])
+        submission_wrapped.set_minimum_lengths(min_length_comments, min_length_posts)
+        submission_wrapped.set_blacklists(blacklist_comments,blacklist_posts)
         
         accept_counter = 0
         documents = []
@@ -42,7 +42,6 @@ class RedditCrawler:
 
 class DBColumnMock:
     def insert_many(self,documents):
-        print(f'Objects found: {len(documents)}')
         for document in documents:
             logging.info("-----------------------------------------------------------------------")
             logging.info(f'Submission: {document["title"]}')
@@ -60,7 +59,7 @@ class DBMock:
 if __name__ == "__main__":
     start_time = datetime.now()
     
-    reddit = praw.Reddit(
+    reddit = praw.Reddit( 
         client_id="P0eMVNdwpy29g3K2LhCPTw",
         client_secret="9s-TrT5HJASoawBN951QWsUQTck-mg",
         user_agent="script:api_test:v1.0.0 (by u/uvl_reddit_crawler)",
