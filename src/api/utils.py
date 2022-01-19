@@ -1,4 +1,5 @@
 from datetime import date, datetime
+import requests
 
 class Utils:
     def get_time_qualifier(self,from_date):
@@ -25,4 +26,14 @@ class Timeframe:
     def is_in_timeframe(self, submission_date):
         return self.from_date <= submission_date <= self.to_date
 
+class database_handler:
+    def __init__(self):
+        self.data = {
+            'ID': 'reddit-1',
+            'text': 'text body'
+        }
+
+    def insert(self):
+        request = requests.post('/hitec/repository/concepts/store/dataset/', data=self.data)
+        return request.status_code
     

@@ -12,7 +12,7 @@ class RedditCrawler:
         self.utilities = Utils()
 
     
-    def crawl(self, subreddit_name, from_date_str, to_date_str, min_length_comments, min_length_posts, blacklist_comments, blacklist_posts):
+    def crawl(self, subreddit_name, from_date_str, to_date_str, min_length_comments=0, min_length_posts=0, blacklist_comments=[], blacklist_posts=[]):
         subreddit = self.reddit.subreddit(subreddit_name)
         db_column = self.database_client[subreddit_name]
         from_date = datetime.strptime(from_date_str, "%d%m%Y").date()
@@ -55,14 +55,15 @@ class DBMock:
         return DBColumnMock()
 
 
+'''
 
 if __name__ == "__main__":
     start_time = datetime.now()
     
     reddit = praw.Reddit( 
-        client_id="P0eMVNdwpy29g3K2LhCPTw",
-        client_secret="9s-TrT5HJASoawBN951QWsUQTck-mg",
-        user_agent="script:api_test:v1.0.0 (by u/uvl_reddit_crawler)",
+        client_id="",
+        client_secret="",
+        user_agent="",
     )
 
     database_client = DBMock()
@@ -80,3 +81,5 @@ if __name__ == "__main__":
     crawler.crawl(subreddit, from_date, to_date)
     elapsed_time = datetime.now()-start_time
     logging.info(f'crawler finished in {elapsed_time}')
+
+'''
