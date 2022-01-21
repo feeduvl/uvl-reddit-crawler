@@ -20,11 +20,11 @@ def run_crawler():
         "blacklist_posts" : [],
     }
     '''
-
+    #app.logger.info("test")
     if request.method == 'POST':
         data = request.get_json(force=True)
         print(data)
-        app.logger.info(f'logged: {str(data)}')
+        app.logger.info(f'User input: {str(data)}')
         return data
     else:
         return 'not post'
