@@ -25,10 +25,15 @@ def run_crawler():
         data = request.get_json(force=True)
         print(data)
         app.logger.info(f'User input: {str(data)}')
+
+        db_test = database_handler()
+        status = db_test.insert()
+        app.logger.info(f'DB insert: {status}')
         return data
     else:
         return 'not post'
     
+
     return request_content
 
     
