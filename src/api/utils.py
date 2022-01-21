@@ -29,8 +29,11 @@ class Timeframe:
 class database_handler:
     def __init__(self):
         self.data = {
-            'ID': 'reddit-1',
-            'text': 'text body'
+            'Name' : 'reddit-insert-test',
+            'Documents': {
+                'Id': 'reddit-1',
+                'Text': 'text body'
+            }
         }
 
     def insert(self):

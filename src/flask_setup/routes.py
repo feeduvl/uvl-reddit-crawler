@@ -1,5 +1,6 @@
 from flask import Flask, request, json, jsonify
-from src.api.crawler import RedditCrawler, DBMock
+from src.api.crawler import RedditCrawler
+from src.api.utils import database_handler
 from src.flask_setup import app
 import praw
 
@@ -22,6 +23,7 @@ def run_crawler():
 
     if request.method == 'POST':
         data = request.get_json(force=True)
+        print(data)
         return data
     else:
         return 'not post'
@@ -36,7 +38,7 @@ def run_crawler():
         user_agent="",
     )
 
-    database_client = DBMock()
+    database_client = database_handler()
 
     reddit_crawler = RedditCrawler(reddit, database_client)
 
@@ -58,5 +60,7 @@ def run_crawler():
     # MISSING: Purposeful DB insert
     except KeyError as error:
         return f'<p> Error: {repr(error)} </p>'
+
+    
 
     return "<p> Success? </p>"
