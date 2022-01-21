@@ -24,6 +24,7 @@ def run_crawler():
     if request.method == 'POST':
         data = request.get_json(force=True)
         print(data)
+        app.logger.info(f'logged: {str(data)}')
         return data
     else:
         return 'not post'
