@@ -28,15 +28,18 @@ class Timeframe:
 
 class database_handler:
     def __init__(self):
+        documents = [
+            {'Id': 'redddit-1','Text': 'text 1' },
+            {'Id': 'redddit-2','Text': 'text 2' }
+        ]
+
+
         self.data = {
             'Name' : 'reddit-insert-test',
-            'Documents': {
-                'Id': 'reddit-1',
-                'Text': 'text body'
-            }
+            'Documents': documents
         }
-
+    
     def insert(self):
-        request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', data=self.data)
+        request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=self.data)
         return request.status_code
     
