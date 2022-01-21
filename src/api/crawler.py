@@ -1,20 +1,18 @@
-import praw
-import pymongo
-import logging
 from datetime import date, datetime
+from xml.dom.minidom import Document
 from src.api.utils import Utils, Timeframe
 from src.api.submission_wrapper import SubmissionWrapper
+from src.flask_setup import app
 
 class RedditCrawler:
-    def __init__(self, reddit_instance, database_client) -> None:
+    def __init__(self, reddit_instance) -> None:
         self.reddit = reddit_instance
-        self.database_client = database_client
         self.utilities = Utils()
+        self.crawled_data = []
 
     
     def crawl(self, subreddit_name, from_date_str, to_date_str, min_length_comments=0, min_length_posts=0, blacklist_comments=[], blacklist_posts=[]):
         subreddit = self.reddit.subreddit(subreddit_name)
-        db_column = self.database_client[subreddit_name]
         from_date = datetime.strptime(from_date_str, "%d%m%Y").date()
         to_date   = datetime.strptime(to_date_str, "%d%m%Y").date()    
         timeframe = Timeframe(from_date,to_date)
@@ -24,35 +22,27 @@ class RedditCrawler:
         submission_wrapped.set_blacklists(blacklist_comments,blacklist_posts)
         
         accept_counter = 0
-        documents = []
         
         for submission_counter, submission in enumerate(subreddit.top(self.utilities.get_time_qualifier(from_date))):
             submission_wrapped.create(submission)
             
             if submission_wrapped.valid:
-                documents.append(submission_wrapped.get())
+                self.crawled_data.append(submission_wrapped.get())
                 accept_counter += 1
+        
+        app.logger.info(f'Number of submissions found:    {submission_counter+1}')
+        app.logger.info(f'Number of submissions accepted: {accept_counter}')
 
-        logging.info(f'Number of submissions found:    {submission_counter+1}')
-        logging.info(f'Number of submissions accepted: {accept_counter}')
-
-        db_column.insert_many(documents)
         pass
 
-
-class DBColumnMock:
-    def insert_many(self,documents):
-        for document in documents:
-            logging.info("-----------------------------------------------------------------------")
-            logging.info(f'Submission: {document["title"]}')
-            logging.info("-----------------------------------------------------------------------")
-            logging.info(document["text"])
-            for index, comment in enumerate(document["comments"]):
-                logging.info(comment)
-
-class DBMock:
-    def __getitem__(self,arg):
-        return DBColumnMock()
+    def get_documents(self, collection_name):
+        documents = []
+        space = ' '
+        for index, dataset in enumerate(self.crawled_data):
+            id = f'{collection_name}_{str(index)}'
+            text = dataset.get("title") + space + dataset.get("text") + space + space.join(dataset.get("comments"))
+            documents.append({"Id": id, "Text": text})
+        return documents
 
 
 '''

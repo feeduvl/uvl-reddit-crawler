@@ -17,8 +17,10 @@ class SubmissionWrapper:
         self.special_char_placeholder = ""
 
     def set_minimum_lengths(self, comment_length=-1, post_length=-1):
-        self.comment_length = comment_length
-        self.post_length = post_length
+        if comment_length.isnumeric():
+            self.comment_length = int(comment_length)
+        if post_length.isnumeric():
+            self.post_length = int(post_length)
 
     def set_blacklists(self, list_comments=[], list_posts=[]):
         self.blacklist_comments =  list_comments

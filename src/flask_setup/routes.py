@@ -3,6 +3,7 @@ from src.api.crawler import RedditCrawler
 from src.api.utils import database_handler
 from src.flask_setup import app
 import praw
+import os
 
 @app.route('/hitec/reddit/crawl', methods=['POST'])
 def run_crawler():
@@ -20,38 +21,25 @@ def run_crawler():
         "blacklist_posts" : [],
     }
     '''
-    #app.logger.info("test")
     if request.method == 'POST':
-        data = request.get_json(force=True)
-        print(data)
-        app.logger.info(f'User input: {str(data)}')
-
-        db_test = database_handler()
-        status = db_test.insert()
-        app.logger.info(f'DB insert: {status}')
-        return data
+        request_content = request.get_json(force=True)
+        app.logger.debug(str(request_content))
     else:
-        return 'not post'
+        app.logger.error('Error: Only POST implemented')
+        return
     
-
-    return request_content
-
-    
-    # MISSING: Credentials
     reddit = praw.Reddit(
-        client_id="",
-        client_secret="",
-        user_agent="",
+        client_id=os.environ["CLIENT_ID"],
+        client_secret=os.environ["CLIENT_SECRET"],
+        user_agent=os.environ["USER_AGENT"],
     )
 
     database_client = database_handler()
 
-    reddit_crawler = RedditCrawler(reddit, database_client)
-
     try:
         subreddits = request_content["subreddits"]
-        from_date  = request_content["from_date"]
-        to_date    = request_content["to_date"]
+        date_from  = request_content["date_from"]
+        date_to    = request_content["date_to"]
 
         min_length_comments = request_content["min_length_comments"]
         min_length_posts = request_content["min_length_posts"]
@@ -60,13 +48,15 @@ def run_crawler():
         blacklist_comments = request_content["blacklist_comments"]
         
         for subreddit in subreddits:
+            reddit_crawler = RedditCrawler(reddit)
+            reddit_crawler.crawl(subreddit, date_from, date_to, min_length_comments, min_length_posts, blacklist_posts, blacklist_comments)
 
-            reddit_crawler.crawl(subreddit, from_date, to_date, min_length_comments, min_length_posts, blacklist_posts, blacklist_comments)
-    
-    # MISSING: Purposeful DB insert
+            collection_name = f'{subreddit}_{date_from}_{date_to}'
+            crawled_documents = reddit_crawler.get_documents(collection_name)
+
+            database_client.insert(collection_name, crawled_documents)
+
     except KeyError as error:
-        return f'<p> Error: {repr(error)} </p>'
+        app.logger.error('Error: KeyError: ' + str(error))
 
-    
-
-    return "<p> Success? </p>"
+    return '200'

@@ -27,7 +27,9 @@ class Timeframe:
         return self.from_date <= submission_date <= self.to_date
 
 class database_handler:
-    def __init__(self):
+    def __init__(self) -> None:
+        '''
+        example data
         documents = [
             {'Id': 'redddit-1','Text': 'text 1' },
             {'Id': 'redddit-2','Text': 'text 2' }
@@ -38,8 +40,15 @@ class database_handler:
             'Name' : 'reddit-insert-test',
             'Documents': documents
         }
-    
-    def insert(self):
-        request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=self.data)
+        '''
+        pass
+
+    def insert(self, collection_name, documents):
+        collection = {
+            'Name' : collection_name,
+            'Documents' : documents
+        }
+
+        request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=collection)
         return request.status_code
     

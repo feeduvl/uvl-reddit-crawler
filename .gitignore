@@ -9,3 +9,5 @@ src/api/__pycache__/utils.cpython-310.pyc
 src/api/__pycache__/submission_wrapper.cpython-310.pyc
 src/api/__pycache__/crawler.cpython-310.pyc
 crawl_info.log
+src/api/__pycache__/utils.cpython-310.pyc
+src/api/__pycache__/crawler.cpython-310.pyc
