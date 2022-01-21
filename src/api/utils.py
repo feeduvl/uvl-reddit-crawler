@@ -37,6 +37,6 @@ class database_handler:
         }
 
     def insert(self):
-        request = requests.post('/hitec/repository/concepts/store/dataset/', data=self.data)
+        request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', data=self.data)
         return request.status_code
     
