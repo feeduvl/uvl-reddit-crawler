@@ -68,7 +68,8 @@ class TestPreprocessing(unittest.TestCase):
     blacklist_word        = "abcdefg"
     submission_text_med   = "this is the textbody of a reddit submission which contains a blacklisted word: " + blacklist_word
     submission_text_short = "too short"
-    submission_text_url = "this is a submission text that contains the URL www.reddit.com/r/subreddit for replacing"
+    submission_text_url = "this is a submission text that contains the URL https://www.reddit.com/ for replacing"
+    submission_text_emoji = "monkey emoji: 🙈 other emoji: 😌."
     comments_all_valid    = ["comment A", "comment B", "comment C"]
     comments_two_valid    = ["comment A", "---", "comment C"]
     comments_blacklist     = ["comment A", blacklist_word, "comment C"]
@@ -108,7 +109,7 @@ class TestPreprocessing(unittest.TestCase):
         submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_short,comments=self.comments_all_valid)
 
         submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
-        submission_wrapper_instance.set_minimum_lengths(post_length=20)
+        submission_wrapper_instance.set_minimum_lengths(post_length="20")
         submission_wrapper_instance.create(submission_mock)
         self.assertFalse(submission_wrapper_instance.valid)
 
@@ -117,7 +118,7 @@ class TestPreprocessing(unittest.TestCase):
         submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_long,comments=self.comments_two_valid)
         
         submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
-        submission_wrapper_instance.set_minimum_lengths(comment_length=5)
+        submission_wrapper_instance.set_minimum_lengths(comment_length="5")
         submission_wrapper_instance.create(submission_mock)
         self.assertEqual(len(submission_wrapper_instance.comments),2, f'Comment filtering failed: {submission_wrapper_instance.comments}')
 
@@ -146,6 +147,17 @@ class TestPreprocessing(unittest.TestCase):
         submission_wrapper_instance.create(submission_mock)
 
         self.assertTrue(replace_string in submission_wrapper_instance.selftext, f'URL replacing failed: {submission_wrapper_instance.selftext}')
+
+    def test_emoji_replacing(self):
+        replace_string = "<emoji>"
+        submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_emoji,comments=self.comments_all_valid)
+
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.set_placeholders(url_placeholder=replace_string)
+        submission_wrapper_instance.create(submission_mock)
+        print(submission_wrapper_instance.selftext)
+        self.assertTrue(replace_string in submission_wrapper_instance.selftext, f'Emoji replacing failed: {submission_wrapper_instance.selftext}')
+
 
 if __name__ == '__main__':
     unittest.main()

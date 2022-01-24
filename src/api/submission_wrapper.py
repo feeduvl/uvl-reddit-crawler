@@ -1,5 +1,5 @@
-import praw
 import re
+import emoji
  
 from datetime import datetime
 #from utils import Timeframe
@@ -16,7 +16,7 @@ class SubmissionWrapper:
         self.url_placeholder = ""
         self.special_char_placeholder = ""
 
-    def set_minimum_lengths(self, comment_length=-1, post_length=-1):
+    def set_minimum_lengths(self, comment_length="", post_length=""):
         if comment_length.isnumeric():
             self.comment_length = int(comment_length)
         if post_length.isnumeric():
@@ -39,11 +39,12 @@ class SubmissionWrapper:
         #self.comments = self.__check_comments_with_level(submission)
 
     def __check_title(self, title):
+        title = self.__process_string(title)
         return title
 
     def __check_selftext(self, selftext):
-        if self.url_placeholder != "": #refine
-            selftext = self.__replace_urls(selftext)
+        selftext = self.__process_string(selftext)
+
         if len(selftext) < self.post_length and self.post_length >= 0:
             self.valid = False
             return selftext
@@ -57,14 +58,15 @@ class SubmissionWrapper:
         checked_comments = []
         for comment in comments:       # pythonic refactoring required
             comment_valid = True
+            processed_comment = self.__process_string(comment.body)
             try:
-                if len(comment.body) < self.comment_length and self.comment_length >= 0:
+                if len(processed_comment) < self.comment_length and self.comment_length >= 0:
                     comment_valid = False
                 for blacklisted_word in self.blacklist_comments:
-                    if blacklisted_word in comment.body:
+                    if blacklisted_word in processed_comment:
                         comment_valid = False
                 if comment_valid:
-                    checked_comments.append(comment.body)
+                    checked_comments.append(processed_comment)
             except AttributeError:
                 continue
         return checked_comments
@@ -111,10 +113,17 @@ class SubmissionWrapper:
         documents.append(document)
         return document
 
+    def __process_string(self, string):
+        if self.url_placeholder != "": #refine
+            string = self.__replace_urls(string)
+        if self.special_char_placeholder != "":
+            string = self.__replace_special_chars(string)
+        return string
+
     def __replace_urls(self, textbody):
-        # https://stackoverflow.com/questions/6038061/regular-expression-to-find-urls-within-a-string
-        url_regex = "(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])"
+        url_regex = r'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))'''
         return re.sub(url_regex, self.url_placeholder, textbody)
 
     def __replace_special_chars(self, textbody):
-        return re.sub("TODO", "TODO", textbody)
+        emoji_regex = emoji.get_emoji_regexp()
+        return re.sub(emoji_regex, self.special_char_placeholder, textbody)
