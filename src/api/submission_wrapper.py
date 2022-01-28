@@ -2,7 +2,6 @@ import re
 import emoji
  
 from datetime import datetime
-#from utils import Timeframe
 
 
 class SubmissionWrapper:
@@ -13,8 +12,8 @@ class SubmissionWrapper:
         self.comment_level = -1
         self.blacklist_comments = []
         self.blacklist_posts = []
-        self.url_placeholder = ""
-        self.special_char_placeholder = ""
+        self.replace_urls = ""
+        self.replace_emojis = ""
 
     def set_minimum_lengths(self, comment_length="", post_length=""):
         if comment_length.isnumeric():
@@ -26,12 +25,13 @@ class SubmissionWrapper:
         self.blacklist_comments =  list_comments
         self.blacklist_posts = list_posts
 
-    def set_placeholders(self, url_placeholder="", char_placeholder=""):
+    def set_special_char_filtering(self, replace_urls=False, replace_emojis=False):
         # add check if parameter was supplied and if replacement is necessary
-        self.url_placeholder = url_placeholder
-        self.special_char_placeholder = char_placeholder
+        self.replace_urls = replace_urls
+        self.replace_emojis = replace_emojis
 
     def create(self, submission):
+        print(str(submission.created_utc) + " is " + str(datetime.utcfromtimestamp(int(submission.created_utc)).date()))
         self.valid = True
         self.title = self.__check_title(submission.title)
         self.selftext = self.__check_selftext(submission.selftext)
@@ -58,8 +58,8 @@ class SubmissionWrapper:
         checked_comments = []
         for comment in comments:       # pythonic refactoring required
             comment_valid = True
-            processed_comment = self.__process_string(comment.body)
             try:
+                processed_comment = self.__process_string(comment.body)
                 if len(processed_comment) < self.comment_length and self.comment_length >= 0:
                     comment_valid = False
                 for blacklisted_word in self.blacklist_comments:
@@ -114,16 +114,16 @@ class SubmissionWrapper:
         return document
 
     def __process_string(self, string):
-        if self.url_placeholder != "": #refine
+        if self.replace_urls:
             string = self.__replace_urls(string)
-        if self.special_char_placeholder != "":
+        if self.replace_emojis:
             string = self.__replace_special_chars(string)
         return string
 
     def __replace_urls(self, textbody):
         url_regex = r'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))'''
-        return re.sub(url_regex, self.url_placeholder, textbody)
+        return re.sub(url_regex, "", textbody)
 
     def __replace_special_chars(self, textbody):
         emoji_regex = emoji.get_emoji_regexp()
-        return re.sub(emoji_regex, self.special_char_placeholder, textbody)
+        return re.sub(emoji_regex, "", textbody)

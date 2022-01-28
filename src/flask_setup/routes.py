@@ -1,7 +1,7 @@
 from flask import Flask, request, json, jsonify
-from src.api.crawler import RedditCrawler
 from src.api.utils import database_handler
 from src.flask_setup import app
+from src.api.request_handler import RequestHandler
 import praw
 import os
 
@@ -9,54 +9,47 @@ import os
 def run_crawler():
 
     '''
-    # Expected example request JSON:
+    # Expected example request:
 
     request_content = {
         "subreddits" : ["ubuntu", "spotify"],
-        "from_date" : "13112021",
-        "to_date" : "28112021",
+        "collection_names" : ["ubuntu2","spotify_dataset"],
+        "from_date" : "13-11-2021",
+        "to_date" : "28-11-2021",
         "min_length_comments" : "",
         "min_length_posts" : "",
         "blacklist_comments" : [],
         "blacklist_posts" : [],
     }
+
+    request_content = {
+        "subreddits":["ubuntu","libreoffice"],
+        "collection_names":["ubuntu_data"],
+        "date_from":"22-01-2022",
+        "date_to":"28-01-2022",
+        "min_length_posts":"20",
+        "min_length_comments":"10",
+        "blacklist_comments":["help"],
+        "blacklist_posts":["meme"]
+    }
     '''
     if request.method == 'POST':
         request_content = request.get_json(force=True)
         app.logger.debug(str(request_content))
+
+
+        reddit = praw.Reddit(
+            client_id=os.environ["CLIENT_ID"],
+            client_secret=os.environ["CLIENT_SECRET"],
+            user_agent=os.environ["USER_AGENT"],
+        )
+        database_client = database_handler()
+
+        client = RequestHandler(request_content,database_client,reddit,app.logger)
+        client.run()
+
     else:
         app.logger.error('Error: Only POST implemented')
         return
-    
-    reddit = praw.Reddit(
-        client_id=os.environ["CLIENT_ID"],
-        client_secret=os.environ["CLIENT_SECRET"],
-        user_agent=os.environ["USER_AGENT"],
-    )
-
-    database_client = database_handler()
-
-    try:
-        subreddits = request_content["subreddits"]
-        date_from  = request_content["date_from"]
-        date_to    = request_content["date_to"]
-
-        min_length_comments = request_content["min_length_comments"]
-        min_length_posts = request_content["min_length_posts"]
-
-        blacklist_posts    = request_content["blacklist_posts"]
-        blacklist_comments = request_content["blacklist_comments"]
-        
-        for subreddit in subreddits:
-            reddit_crawler = RedditCrawler(reddit)
-            reddit_crawler.crawl(subreddit, date_from, date_to, min_length_comments, min_length_posts, blacklist_posts, blacklist_comments)
-
-            collection_name = f'{subreddit}_{date_from}_{date_to}'
-            crawled_documents = reddit_crawler.get_documents(collection_name)
-
-            database_client.insert(collection_name, crawled_documents)
-
-    except KeyError as error:
-        app.logger.error('Error: KeyError: ' + str(error))
 
     return '200'

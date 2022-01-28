@@ -1,20 +1,21 @@
 from datetime import date, datetime
-from xml.dom.minidom import Document
+import os
 from src.api.utils import Utils, Timeframe
 from src.api.submission_wrapper import SubmissionWrapper
-from src.flask_setup import app
 
 class RedditCrawler:
-    def __init__(self, reddit_instance) -> None:
+    def __init__(self, reddit_instance, logger) -> None:
         self.reddit = reddit_instance
         self.utilities = Utils()
         self.crawled_data = []
+        self.logger = logger
 
     
     def crawl(self, subreddit_name, from_date_str, to_date_str, min_length_comments=0, min_length_posts=0, blacklist_comments=[], blacklist_posts=[]):
         subreddit = self.reddit.subreddit(subreddit_name)
-        from_date = datetime.strptime(from_date_str, "%d%m%Y").date()
-        to_date   = datetime.strptime(to_date_str, "%d%m%Y").date()    
+
+        from_date = datetime.strptime(from_date_str, "%d-%m-%Y").date()
+        to_date   = datetime.strptime(to_date_str, "%d-%m-%Y").date()    
         timeframe = Timeframe(from_date,to_date)
 
         submission_wrapped = SubmissionWrapper(timeframe)
@@ -30,19 +31,20 @@ class RedditCrawler:
                 self.crawled_data.append(submission_wrapped.get())
                 accept_counter += 1
         
-        app.logger.info(f'Number of submissions found:    {submission_counter+1}')
-        app.logger.info(f'Number of submissions accepted: {accept_counter}')
+        self.logger.info(f'Number of submissions found:    {submission_counter+1}')
+        self.logger.info(f'Number of submissions accepted: {accept_counter}')
 
         pass
 
     def get_documents(self, collection_name):
         documents = []
-        space = ' '
+        sep = os.linesep
         for index, dataset in enumerate(self.crawled_data):
             id = f'{collection_name}_{str(index)}'
-            text = dataset.get("title") + space + dataset.get("text") + space + space.join(dataset.get("comments"))
+            text = dataset.get("title") + sep + dataset.get("text") + sep + sep.join(dataset.get("comments"))
             documents.append({"Id": id, "Text": text})
         return documents
+
 
 
 '''
