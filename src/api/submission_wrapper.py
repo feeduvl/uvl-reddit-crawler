@@ -31,7 +31,6 @@ class SubmissionWrapper:
         self.replace_emojis = replace_emojis
 
     def create(self, submission):
-        print(str(submission.created_utc) + " is " + str(datetime.utcfromtimestamp(int(submission.created_utc)).date()))
         self.valid = True
         self.title = self.__check_title(submission.title)
         self.selftext = self.__check_selftext(submission.selftext)

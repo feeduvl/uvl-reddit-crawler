@@ -7,57 +7,21 @@ from urllib import request
 import sys
 sys.path.append("..")
 from src.api.request_handler import RequestHandler
-from src.test.utils import SubmissionMockFactory
-
-class redditMock:
-    def __init__(self) -> None:
-        subreddit = MagicMock()
-        submissions = self.get_submissions()
-        subreddit.top.return_value(submissions)
-        self.subreddit = subreddit
-        pass
-
-    def subreddit(self, subreddit_name):
-        return self.subreddit
-
-    def get_submissions(self):
-        submission_factory = SubmissionMockFactory()
-
-        title = 'title 1'
-        text = 'this is the text of a valid reddit post with valid length'
-        comments = ['comment a with sufficient length','another comment a with sufficient length']
-        timestamp = '1642793826' # 2022-01-21
-        submission_a = submission_factory.get_submission_mock(title, text, comments, timestamp)
-
-        """
-        title = ''
-        text = ''
-        comments = ['','']
-        timestamp = '1643188166' # 2022-01-26
-        submission_b = submission_factory.get_submission_mock(title, text, comments, timestamp)
-
-        title = ''
-        text = ''
-        comments = ['','']
-        timestamp = ''
-        submission_c = submission_factory.get_submission_mock(title, text, comments, timestamp)
-        """
-        return [submission_a]
-
+from src.test.utils import RedditMockFactory
 
 
 class DBHandlerMock:
-    documents = []
-    collection_name = ''
+    def __init__(self) -> None:
+        self.documents = []
+        self.collection_names = []
+        pass
 
     def get_documents(self):
         return self.documents
 
     def insert(self, collection_name, documents):
-        self.documents = documents
-        self.collection_name = collection_name
-
-
+        self.documents.append(documents)
+        self.collection_names.append(collection_name)
 
 
 class TestAPI(unittest.TestCase):
@@ -65,67 +29,55 @@ class TestAPI(unittest.TestCase):
     def setUp(self) -> None:
         self.request_content = {
             "subreddits":["ubuntu","libreoffice"],
-            "collection_names":["ubuntu_data"],
+            "collection_names":["ubuntu_data","libredata"],
             "date_from":"22-01-2022",
             "date_to":"28-01-2022",
             "min_length_posts":"20",
-            "min_length_comments":"10",
+            "min_length_comments":"8",
             "blacklist_comments":["help"],
             "blacklist_posts":["meme"],
             "replace_urls" : "true",
             "replace_emojis" : "false"
         }
 
-        self.reddit_mock = redditMock()
-        """self.reddit_mock = praw.Reddit(
-            client_id="P0eMVNdwpy29g3K2LhCPTw",
-            client_secret="9s-TrT5HJASoawBN951QWsUQTck-mg",
-            user_agent="script:api_test:v1.0.0 (by u/uvl_reddit_crawler)",
-        )"""
-
         self.database_mock = DBHandlerMock()
         self.logger = MagicMock()
+        self.mock_factory = RedditMockFactory()
+        return super().setUp()
 
-    def test_api_request(self):
+    def tearDown(self) -> None:
+        return super().tearDown()
+
+
+    def test_request_all_valid(self):
         # GIVEN
-        request_instance = RequestHandler(self.request_content,self.database_mock,self.reddit_mock,self.logger)
+        reddit_mock, crawler_result = self.mock_factory.get()
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
 
         # WHEN
         request_instance.run()
 
         # THEN
-        crawling_content = self.database_mock.get_documents()
-        print(crawling_content)
+        crawling_content = self.database_mock.get_documents()[1]
 
-        pass
-        
-    def __assert_collections(self):
+        self.assertEqual(self.request_content.get("collection_names"),self.database_mock.collection_names)
+        self.assertEqual(crawling_content[1].get("Text"), crawler_result)
         pass
 
-    def __assert_collection_names(self):
-        pass
 
-    def __assert_date_exclusion(self):
-        pass
+    def test_request_omit_collection_name(self):
+        # GIVEN
+        reddit_mock, crawler_result = self.mock_factory.get()
+        self.request_content["collection_names"] = ["ubuntu_data"]
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
 
-    def __assert_post_length(self):
-        pass
+        # WHEN
+        request_instance.run()
 
-    def __assert_comment_length(self):
+        # THEN
+        self.assertEqual(self.request_content.get("collection_names")[0],self.database_mock.collection_names[0])
+        self.assertEqual(self.database_mock.collection_names[1],"libreoffice_22-01-2022_28-01-2022")
         pass
-
-    def __assert_blacklist_comments(self):
-        pass
-
-    def __assert_blacklist(self):
-        pass
-
-    def __assert_url_filtering(self):
-        pass
-
-    def __assert_emoji_filtering(self):
-        pass
-
 
 
 if __name__ == '__main__':

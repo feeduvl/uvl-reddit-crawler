@@ -23,7 +23,7 @@ class RequestHandler:
             reddit_crawler = RedditCrawler(self.reddit_instance, self.logger)
             reddit_crawler.crawl(subreddit, date_from, date_to, min_length_comments, min_length_posts, blacklist_posts, blacklist_comments)
 
-            if len(collection_names) < index:
+            if index < len(collection_names):
                 collection_name = collection_names[index]
             else:
                 collection_name = f'{subreddit}_{date_from}_{date_to}'
