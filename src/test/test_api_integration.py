@@ -28,14 +28,14 @@ class TestAPI(unittest.TestCase):
 
     def setUp(self) -> None:
         self.request_content = {
-            "subreddits":["ubuntu","libreoffice"],
-            "collection_names":["ubuntu_data","libredata"],
-            "date_from":"22-01-2022",
+            "subreddits":["ubuntu"],
+            "collection_names":["ubuntu_data"],
+            "date_from":"24-01-2022",
             "date_to":"28-01-2022",
             "min_length_posts":"20",
             "min_length_comments":"8",
-            "blacklist_comments":["help"],
-            "blacklist_posts":["meme"],
+            "blacklist_comments":[],
+            "blacklist_posts":[],
             "replace_urls" : "true",
             "replace_emojis" : "false"
         }
@@ -58,26 +58,66 @@ class TestAPI(unittest.TestCase):
         request_instance.run()
 
         # THEN
-        crawling_content = self.database_mock.get_documents()[1]
+        crawling_content = self.database_mock.get_documents()[0]
 
         self.assertEqual(self.request_content.get("collection_names"),self.database_mock.collection_names)
-        self.assertEqual(crawling_content[1].get("Text"), crawler_result)
+        self.assertEqual(len(crawling_content),2)
+
         pass
 
 
     def test_request_omit_collection_name(self):
-        # GIVEN
+        # GIVEN: 2 subreddits to crawl
         reddit_mock, crawler_result = self.mock_factory.get()
-        self.request_content["collection_names"] = ["ubuntu_data"]
+        self.request_content["subreddits"].append("libreoffice")
         request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
 
         # WHEN
         request_instance.run()
 
-        # THEN
+        # THEN: Expect 1 specified collection name, 1 generated collection name
         self.assertEqual(self.request_content.get("collection_names")[0],self.database_mock.collection_names[0])
-        self.assertEqual(self.database_mock.collection_names[1],"libreoffice_22-01-2022_28-01-2022")
+        self.assertEqual(self.database_mock.collection_names[1],"libreoffice_24-01-2022_28-01-2022")
         pass
+
+    def test_request_invalid_date(self):
+        # GIVEN: 1 control submission with valid date, 1 test submission with invalid date
+        reddit_mock, crawler_result = self.mock_factory.get(date_invalid=True)
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to only get the control submission
+        self.assertEqual(len(self.database_mock.get_documents()),1)
+        pass
+
+    def test_request_invalid_text_len(self):
+        # GIVEN: 1 control submission, 1 test submission with short title
+        reddit_mock, crawler_result = self.mock_factory.get(short_submission=True)
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to only get the control submission
+        self.assertEqual(len(self.database_mock.get_documents()),1)
+        pass
+
+    def test_request_blacklist_post(self):
+        # GIVEN: 1 control submission, 1 test submission with short title
+        reddit_mock, crawler_result = self.mock_factory.get(blacklist_used=True)
+        self.request_content["blacklist_posts"] = [self.mock_factory.blacklist_word]
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to only get the control submission
+        self.assertEqual(len(self.database_mock.get_documents()),1)
+        pass
+
+        
 
 
 if __name__ == '__main__':

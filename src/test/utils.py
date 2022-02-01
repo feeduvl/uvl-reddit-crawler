@@ -35,7 +35,6 @@ class RedditMock:
 
 class RedditMockFactory():
     title                 = "this is a title of a reddit submission"
-    title_short           = "too short"
     submission_text       = "this is the textbody of a reddit submission which is longer than 20 characters"
     submission_text_short = "too short"
     blacklist_word        = "<word>"
@@ -50,7 +49,7 @@ class RedditMockFactory():
     def __init__(self) -> None:
         pass
 
-    def get(self,short_title=False,short_submission=False,blacklist_used=False,date_invalid=False,contains_emoji=False,contains_url=False):
+    def get(self,short_submission=False,blacklist_used=False,date_invalid=False,contains_emoji=False,contains_url=False):
         # refactoring needed
 
         # build comment mock
@@ -79,12 +78,7 @@ class RedditMockFactory():
         if contains_emoji:
             submission_text += f' {self.emoji_string}'
 
-        if short_title:
-            title = self.title_short
-        else:
-            title = self.title
-
-        submission_mock = SubmissionMock(comment_list, date, title, submission_text)        
+        submission_mock = SubmissionMock(comment_list, date, self.title, submission_text)        
         
         # wrap submission in other classes
         control_submission = self.__get_control_submission()
@@ -93,14 +87,18 @@ class RedditMockFactory():
 
         # generate expected crawling result
         sep = os.linesep
-        crawling_result = title + sep + submission_text + sep + sep.join(self.comments_all_valid)
+        crawling_result = self.title + sep + submission_text + sep + sep.join(self.comments_all_valid)
 
         return reddit_mock, crawling_result
 
     def __get_control_submission(self):
+        comments = ["comment A of valid post", "control submission valid comment B", "comment C ++++++++++++++++"]
         comment_list = []
-        for comment in self.comments_all_valid:
+        for comment in comments:
             comment_mock = CommentMock(comment)
             comment_list.append(comment_mock)
+        
+        title = 'title of control submission'
+        submission_text = 'submission text of control submission (which also contains a valid number of characters)'
 
-        return SubmissionMock(comment_list, self.date_valid, self.title, self.submission_text)
+        return SubmissionMock(comment_list, self.date_valid, title, submission_text)
