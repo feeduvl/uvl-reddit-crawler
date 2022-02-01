@@ -33,7 +33,8 @@ class TestAPI(unittest.TestCase):
             "date_from":"24-01-2022",
             "date_to":"28-01-2022",
             "min_length_posts":"20",
-            "min_length_comments":"8",
+            "min_length_comments":"10",
+            "comment_depth" : "1",
             "blacklist_comments":[],
             "blacklist_posts":[],
             "replace_urls" : "true",
@@ -104,9 +105,21 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(len(self.database_mock.get_documents()),1)
         pass
 
+    def test_request_short_comment(self):
+        # GIVEN: 1 control submission, 1 test submission with short comment
+        reddit_mock, crawler_result = self.mock_factory.get(short_comment=True)
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to not get short comment text
+        self.assertFalse(self.mock_factory.text_short in self.database_mock.get_documents()[0][1].get('Text'))
+        pass
+
     def test_request_blacklist_post(self):
         # GIVEN: 1 control submission, 1 test submission with short title
-        reddit_mock, crawler_result = self.mock_factory.get(blacklist_used=True)
+        reddit_mock, crawler_result = self.mock_factory.get(blacklist_in_post=True)
         self.request_content["blacklist_posts"] = [self.mock_factory.blacklist_word]
         request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
 
@@ -115,6 +128,19 @@ class TestAPI(unittest.TestCase):
 
         # THEN: Expect to only get the control submission
         self.assertEqual(len(self.database_mock.get_documents()),1)
+        pass
+
+    def test_request_blacklist_comment(self):
+        # GIVEN: 1 control submission, 1 test submission with short title
+        reddit_mock, crawler_result = self.mock_factory.get(blacklist_in_comment=True)
+        self.request_content["blacklist_posts"] = [self.mock_factory.blacklist_word]
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to only get the control submission
+        self.assertFalse(self.mock_factory.blacklist_word in self.database_mock.get_documents()[0][1].get('Text'))
         pass
 
         

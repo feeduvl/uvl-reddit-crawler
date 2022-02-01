@@ -20,15 +20,23 @@ class SubmissionWrapper:
             self.comment_length = int(comment_length)
         if post_length.isnumeric():
             self.post_length = int(post_length)
+        pass
+
+    def set_comment_depth(self, comment_depth):
+        if comment_depth.isnumeric():
+            self.comment_level = int(comment_depth)
+        pass
 
     def set_blacklists(self, list_comments=[], list_posts=[]):
         self.blacklist_comments =  list_comments
         self.blacklist_posts = list_posts
+        pass
 
     def set_special_char_filtering(self, replace_urls=False, replace_emojis=False):
         # add check if parameter was supplied and if replacement is necessary
         self.replace_urls = replace_urls
         self.replace_emojis = replace_emojis
+        pass
 
     def create(self, submission):
         self.valid = True

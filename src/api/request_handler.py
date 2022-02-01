@@ -15,13 +15,14 @@ class RequestHandler:
 
         min_length_comments = self.request_content["min_length_comments"]
         min_length_posts = self.request_content["min_length_posts"]
+        comment_depth = self.request_content["comment_depth"]
 
         blacklist_posts    = self.request_content["blacklist_posts"]
         blacklist_comments = self.request_content["blacklist_comments"]
         
         for index, subreddit in enumerate(subreddits):
             reddit_crawler = RedditCrawler(self.reddit_instance, self.logger)
-            reddit_crawler.crawl(subreddit, date_from, date_to, min_length_comments, min_length_posts, blacklist_posts, blacklist_comments)
+            reddit_crawler.crawl(subreddit, date_from, date_to, min_length_comments, min_length_posts, comment_depth, blacklist_posts, blacklist_comments)
 
             if index < len(collection_names):
                 collection_name = collection_names[index]

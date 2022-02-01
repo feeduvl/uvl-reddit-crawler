@@ -36,11 +36,11 @@ class RedditMock:
 class RedditMockFactory():
     title                 = "this is a title of a reddit submission"
     submission_text       = "this is the textbody of a reddit submission which is longer than 20 characters"
-    submission_text_short = "too short"
+    text_short            = "too short"
     blacklist_word        = "<word>"
     url_string            = "this is a submission text that contains the URL https://www.reddit.com/ for replacing"
     emoji_string          = "🙈"
-    comments_all_valid    = ["comment A", "comment B", "comment C"]
+    comments_all_valid    = ["long comment A", "valid comment B", " another comment C"]
     comment_url           = ["comment https://www.reddit.com/"]
     date_valid            = '1643188166' # 2022-01-26
     date_invalid          = '1642793826' # 2022-01-21
@@ -49,7 +49,8 @@ class RedditMockFactory():
     def __init__(self) -> None:
         pass
 
-    def get(self,short_submission=False,blacklist_used=False,date_invalid=False,contains_emoji=False,contains_url=False):
+    def get(self,short_submission=False,blacklist_in_post=False,blacklist_in_comment=False,short_comment=False,
+            date_invalid=False,contains_emoji=False,contains_url=False):
         # refactoring needed
 
         # build comment mock
@@ -58,6 +59,12 @@ class RedditMockFactory():
             comment_mock = CommentMock(comment)
             comment_list.append(comment_mock)
 
+        if blacklist_in_comment:
+            comment_list[0].body += self.blacklist_word
+
+        if short_comment:
+            comment_list[0].body = self.text_short
+
         # build submission mock
         if not date_invalid:
             date = self.date_valid
@@ -65,11 +72,11 @@ class RedditMockFactory():
             date = self.date_invalid
         
         if short_submission:
-            submission_text = self.submission_text_short
+            submission_text = self.text_short
         else:
             submission_text = self.submission_text
 
-        if blacklist_used:
+        if blacklist_in_post:
             submission_text += f' {self.blacklist_word}'
         
         if contains_url:
