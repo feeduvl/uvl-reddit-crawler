@@ -25,6 +25,7 @@ def run_crawler():
         "replace_emojis" : "false"
     }
     '''
+    return 200
     if request.method == 'POST':
         request_content = request.get_json(force=True)
         app.logger.debug(str(request_content))
