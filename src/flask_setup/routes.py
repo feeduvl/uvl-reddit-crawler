@@ -18,14 +18,14 @@ def run_crawler():
         "date_to":"28-01-2022",
         "min_length_posts":"20",
         "min_length_comments":"10",
-        "comment_depth" : "1", # [0,1,2,3,4,5,"all"]
+        "comment_depth" : "1", # [0,1,2,3,4,5,6 which means all]
         "blacklist_comments":["foo"],
         "blacklist_posts":["bar"],
         "replace_urls" : "false",
         "replace_emojis" : "false"
     }
     '''
-    return 200
+    return 'OK'
     if request.method == 'POST':
         request_content = request.get_json(force=True)
         app.logger.debug(str(request_content))

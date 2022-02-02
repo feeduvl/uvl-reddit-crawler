@@ -189,7 +189,7 @@ class TestAPI(unittest.TestCase):
     def test_request_comment_depth_all(self):
         # GIVEN: 1 control submission and one submission with comment tree
         reddit_mock, crawler_result = self.mock_factory.get(comment_tree=True)
-        self.request_content["comment_depth"] = "all"
+        self.request_content["comment_depth"] = "6"
         request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
 
         # WHEN

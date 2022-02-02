@@ -24,8 +24,10 @@ class SubmissionWrapper:
     def set_comment_depth(self, comment_depth):
         if comment_depth.isnumeric():
             self.comment_level = int(comment_depth)
-        else:
-            self.comment_level = -1
+
+            # level = 6 means no depth limit
+            if self.comment_level == 6:
+                self.comment_level = -1
 
     def set_blacklists(self, list_comments=[], list_posts=[]):
         self.blacklist_comments =  list_comments
