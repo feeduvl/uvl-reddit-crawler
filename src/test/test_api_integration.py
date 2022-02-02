@@ -37,7 +37,7 @@ class TestAPI(unittest.TestCase):
             "comment_depth" : "1",
             "blacklist_comments":[],
             "blacklist_posts":[],
-            "replace_urls" : "true",
+            "replace_urls" : "false",
             "replace_emojis" : "false"
         }
 
@@ -143,7 +143,32 @@ class TestAPI(unittest.TestCase):
         self.assertFalse(self.mock_factory.blacklist_word in self.database_mock.get_documents()[0][1].get('Text'))
         pass
 
+    def test_request_remove_url_text(self):
+        # GIVEN: 1 control submission, 1 submission that contains an url in text
+        reddit_mock, crawler_result = self.mock_factory.get(contains_url=True)
+        self.request_content["replace_urls"] = "true"
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to not find url in text
+        self.assertFalse(self.mock_factory.url_string in self.database_mock.get_documents()[0][1].get('Text'))
+        pass
         
+    def test_request_remove_emoji_text(self):
+        # GIVEN: 1 control submission, 1 submission that contains an url in text
+        reddit_mock, crawler_result = self.mock_factory.get(contains_emoji=True)
+        self.request_content["replace_emojis"] = "true"
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to not find url in text
+        self.assertFalse(self.mock_factory.emoji_string in self.database_mock.get_documents()[0][1].get('Text'))
+        pass
+
 
 
 if __name__ == '__main__':

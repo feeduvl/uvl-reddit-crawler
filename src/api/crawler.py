@@ -11,7 +11,7 @@ class RedditCrawler:
         self.logger = logger
 
     
-    def crawl(self, subreddit_name, from_date_str, to_date_str, min_length_comments=0, min_length_posts=0, comment_depth=1, blacklist_comments=[], blacklist_posts=[]):
+    def crawl(self, subreddit_name, from_date_str, to_date_str, min_length_comments=0, min_length_posts=0, comment_depth=1, blacklist_comments=[], blacklist_posts=[],replace_urls=False,replace_emojis=False):
         subreddit = self.reddit.subreddit(subreddit_name)
 
         from_date = datetime.strptime(from_date_str, "%d-%m-%Y").date()
@@ -22,6 +22,7 @@ class RedditCrawler:
         submission_wrapped.set_minimum_lengths(min_length_comments, min_length_posts)
         submission_wrapped.set_comment_depth(comment_depth)
         submission_wrapped.set_blacklists(blacklist_comments,blacklist_posts)
+        submission_wrapped.set_special_char_filtering(replace_urls,replace_emojis)
         
         accept_counter = 0
         

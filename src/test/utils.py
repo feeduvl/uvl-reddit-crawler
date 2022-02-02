@@ -38,7 +38,7 @@ class RedditMockFactory():
     submission_text       = "this is the textbody of a reddit submission which is longer than 20 characters"
     text_short            = "too short"
     blacklist_word        = "<word>"
-    url_string            = "this is a submission text that contains the URL https://www.reddit.com/ for replacing"
+    url_string            = "https://www.reddit.com/"
     emoji_string          = "🙈"
     comments_all_valid    = ["long comment A", "valid comment B", " another comment C"]
     comment_url           = ["comment https://www.reddit.com/"]
