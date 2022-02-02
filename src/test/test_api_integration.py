@@ -23,6 +23,9 @@ class DBHandlerMock:
         self.documents.append(documents)
         self.collection_names.append(collection_name)
 
+    def get_text(self):
+        return self.get_documents()[0][1].get('Text')
+
 
 class TestAPI(unittest.TestCase):
 
@@ -64,9 +67,6 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(self.request_content.get("collection_names"),self.database_mock.collection_names)
         self.assertEqual(len(crawling_content),2)
 
-        pass
-
-
     def test_request_omit_collection_name(self):
         # GIVEN: 2 subreddits to crawl
         reddit_mock, crawler_result = self.mock_factory.get()
@@ -79,7 +79,6 @@ class TestAPI(unittest.TestCase):
         # THEN: Expect 1 specified collection name, 1 generated collection name
         self.assertEqual(self.request_content.get("collection_names")[0],self.database_mock.collection_names[0])
         self.assertEqual(self.database_mock.collection_names[1],"libreoffice_24-01-2022_28-01-2022")
-        pass
 
     def test_request_invalid_date(self):
         # GIVEN: 1 control submission with valid date, 1 test submission with invalid date
@@ -91,7 +90,6 @@ class TestAPI(unittest.TestCase):
 
         # THEN: Expect to only get the control submission
         self.assertEqual(len(self.database_mock.get_documents()),1)
-        pass
 
     def test_request_invalid_text_len(self):
         # GIVEN: 1 control submission, 1 test submission with short title
@@ -103,7 +101,6 @@ class TestAPI(unittest.TestCase):
 
         # THEN: Expect to only get the control submission
         self.assertEqual(len(self.database_mock.get_documents()),1)
-        pass
 
     def test_request_short_comment(self):
         # GIVEN: 1 control submission, 1 test submission with short comment
@@ -115,7 +112,6 @@ class TestAPI(unittest.TestCase):
 
         # THEN: Expect to not get short comment text
         self.assertFalse(self.mock_factory.text_short in self.database_mock.get_documents()[0][1].get('Text'))
-        pass
 
     def test_request_blacklist_post(self):
         # GIVEN: 1 control submission, 1 test submission with short title
@@ -128,7 +124,6 @@ class TestAPI(unittest.TestCase):
 
         # THEN: Expect to only get the control submission
         self.assertEqual(len(self.database_mock.get_documents()),1)
-        pass
 
     def test_request_blacklist_comment(self):
         # GIVEN: 1 control submission, 1 test submission with short title
@@ -141,7 +136,6 @@ class TestAPI(unittest.TestCase):
 
         # THEN: Expect to only get the control submission
         self.assertFalse(self.mock_factory.blacklist_word in self.database_mock.get_documents()[0][1].get('Text'))
-        pass
 
     def test_request_remove_url_text(self):
         # GIVEN: 1 control submission, 1 submission that contains an url in text
@@ -154,7 +148,6 @@ class TestAPI(unittest.TestCase):
 
         # THEN: Expect to not find url in text
         self.assertFalse(self.mock_factory.url_string in self.database_mock.get_documents()[0][1].get('Text'))
-        pass
         
     def test_request_remove_emoji_text(self):
         # GIVEN: 1 control submission, 1 submission that contains an url in text
@@ -167,7 +160,56 @@ class TestAPI(unittest.TestCase):
 
         # THEN: Expect to not find url in text
         self.assertFalse(self.mock_factory.emoji_string in self.database_mock.get_documents()[0][1].get('Text'))
-        pass
+
+    def test_request_comment_depth_1(self):
+        # GIVEN: 1 control submission and one submission with comment tree
+        reddit_mock, crawler_result = self.mock_factory.get(comment_tree=True)
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to not "level 3" in text
+        self.assertFalse("level 2" in self.database_mock.get_text())
+
+    def test_request_comment_depth_3(self):
+        # GIVEN: 1 control submission and one submission with comment tree
+        reddit_mock, crawler_result = self.mock_factory.get(comment_tree=True)
+        self.request_content["comment_depth"] = "3"
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to not find "level 4" in text
+        self.assertFalse("level 4" in self.database_mock.get_text())
+
+
+    # TODO add asserts
+    def test_request_comment_depth_all(self):
+        # GIVEN: 1 control submission and one submission with comment tree
+        reddit_mock, crawler_result = self.mock_factory.get(comment_tree=True)
+        self.request_content["comment_depth"] = "all"
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to not find url in text
+        self.assertTrue("level 4" in self.database_mock.get_text())
+
+
+    def test_request_comment_depth_none(self):
+        # GIVEN: 1 control submission and one submission with comment tree
+        reddit_mock, crawler_result = self.mock_factory.get(comment_tree=True)
+        self.request_content["comment_depth"] = "0"
+        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
+
+        # WHEN
+        request_instance.run()
+
+        # THEN: Expect to not find url in text
+        self.assertFalse("Comment" in self.database_mock.get_text())
 
 
 

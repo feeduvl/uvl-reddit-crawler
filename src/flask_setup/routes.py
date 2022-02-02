@@ -12,25 +12,17 @@ def run_crawler():
     # Expected example request:
 
     request_content = {
-        "subreddits" : ["ubuntu", "spotify"],
-        "collection_names" : ["ubuntu2","spotify_dataset"],
-        "from_date" : "13-11-2021",
-        "to_date" : "28-11-2021",
-        "min_length_comments" : "",
-        "min_length_posts" : "",
-        "blacklist_comments" : [],
-        "blacklist_posts" : [],
-    }
-
-    request_content = {
-        "subreddits":["ubuntu","libreoffice"],
+        "subreddits":["ubuntu"],
         "collection_names":["ubuntu_data"],
-        "date_from":"22-01-2022",
+        "date_from":"24-01-2022",
         "date_to":"28-01-2022",
         "min_length_posts":"20",
         "min_length_comments":"10",
-        "blacklist_comments":["help"],
-        "blacklist_posts":["meme"]
+        "comment_depth" : "1", # [0,1,2,3,4,5,"all"]
+        "blacklist_comments":["foo"],
+        "blacklist_posts":["bar"],
+        "replace_urls" : "false",
+        "replace_emojis" : "false"
     }
     '''
     if request.method == 'POST':

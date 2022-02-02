@@ -20,30 +20,29 @@ class SubmissionWrapper:
             self.comment_length = int(comment_length)
         if post_length.isnumeric():
             self.post_length = int(post_length)
-        pass
 
     def set_comment_depth(self, comment_depth):
         if comment_depth.isnumeric():
             self.comment_level = int(comment_depth)
-        pass
+        else:
+            self.comment_level = -1
 
     def set_blacklists(self, list_comments=[], list_posts=[]):
         self.blacklist_comments =  list_comments
         self.blacklist_posts = list_posts
-        pass
 
     def set_special_char_filtering(self, replace_urls=False, replace_emojis=False):
         # add check if parameter was supplied and if replacement is necessary
         self.replace_urls = replace_urls
         self.replace_emojis = replace_emojis
-        pass
 
     def create(self, submission):
         self.valid = True
+        self.__check_submission(submission)
         self.title = self.__check_title(submission.title)
         self.selftext = self.__check_selftext(submission.selftext)
-        self.comments = self.__check_comments(submission.comments.list())
-        #self.comments = self.__check_comments_with_level(submission)
+#        self.comments = self.__check_comments(submission.comments.list())
+        self.comments = self.__check_comments_with_level(submission)
 
     def __check_title(self, title):
         title = self.__process_string(title)
@@ -61,43 +60,43 @@ class SubmissionWrapper:
                 return selftext
         return selftext
 
-    def __check_comments(self,comments):
-        checked_comments = []
-        for comment in comments:       # pythonic refactoring required
-            comment_valid = True
-            try:
-                processed_comment = self.__process_string(comment.body)
-                if len(processed_comment) < self.comment_length and self.comment_length >= 0:
-                    comment_valid = False
-                for blacklisted_word in self.blacklist_comments:
-                    if blacklisted_word in processed_comment:
-                        comment_valid = False
-                if comment_valid:
-                    checked_comments.append(processed_comment)
-            except AttributeError:
-                continue
-        return checked_comments
-
     def __check_comments_with_level(self,submission):
-        check_comments = []
+        checked_comments = []
         comment_level = 1
 
         submission.comments.replace_more(limit=None)
-        comment_queue = submission.comments[:]  # Seed with top-level
+        comment_queue = submission.comments[:] 
+        # search comment tree for comments
+        more_comments_exist = True
+        comment_is_valid = True
+        while more_comments_exist:
+            # exit if max level has been reached
+            if comment_level-1 >= self.comment_level and self.comment_level >= 0:
+                break
 
-        comments_exist = True
-        while comments_exist:
             next_level_comments = []
+
+            # process all comments of a specific level
             for comment in comment_queue:
-                check_comments.append(f'comment lvl {comment_level}: {comment.body}')
-                next_level_comments.extend(comment.replies)
+                processed_comment = self.__process_string(comment.body)
+                comment_is_valid = not (len(processed_comment) < self.comment_length and self.comment_length >= 0)
+                for blacklisted_word in self.blacklist_comments:
+                    if blacklisted_word in processed_comment:
+                        comment_is_valid = False
+
+                if comment_is_valid:
+                    checked_comments.append(comment.body)
+                    # if a comment is not valid replies will be discarded
+                    next_level_comments.extend(comment.replies)
+
+            # go down one level if more comments exist
             if len(next_level_comments) > 0:
                 comment_queue = next_level_comments
                 comment_level += 1
             else:
-                comments_exist = False
-        return check_comments
+                more_comments_exist = False
 
+        return checked_comments        
 
     def __check_submission(self,submission):
         submission_date = datetime.utcfromtimestamp(int(submission.created_utc)).date()

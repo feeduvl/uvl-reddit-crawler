@@ -83,17 +83,18 @@ class TestPreprocessing(unittest.TestCase):
         submission_mock = MagicMock()
         submission_mock.title = title
         submission_mock.selftext = text
-        submission_mock.created_utc = "timestamp"
+        submission_mock.created_utc = "0"
 
         # pythonic refactoring required
         comments_mock_return_list = []
         for comment in comments:
             comment_mock = MagicMock()
             comment_mock.body = comment
+            comment_mock.replies = []
             comments_mock_return_list.append(comment_mock)
 
         comments_mock = MagicMock()
-        comments_mock.list.return_value = comments_mock_return_list
+        comments_mock.__getitem__.return_value = comments_mock_return_list
 
         submission_mock.comments = comments_mock
         return submission_mock
