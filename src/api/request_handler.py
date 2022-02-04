@@ -13,14 +13,14 @@ class RequestHandler:
         date_from  = self.request_content["date_from"]
         date_to    = self.request_content["date_to"]
 
-        min_length_comments = self.request_content["min_length_comments"]
-        min_length_posts = self.request_content["min_length_posts"]
-        comment_depth = self.request_content["comment_depth"]
+        min_length_comments = int(self.request_content["min_length_comments"])
+        min_length_posts    = int(self.request_content["min_length_posts"])
+        comment_depth       = int(self.request_content["comment_depth"])
 
         blacklist_posts    = self.request_content["blacklist_posts"]
         blacklist_comments = self.request_content["blacklist_comments"]
 
-        
+
         replace_urls   = self.request_content["replace_urls"] == "true"
         replace_emojis = self.request_content["replace_emojis"] == "true"
 
@@ -36,4 +36,3 @@ class RequestHandler:
             crawled_documents = reddit_crawler.get_documents(collection_name)
 
             self.database_handler.insert(collection_name, crawled_documents)
-        pass

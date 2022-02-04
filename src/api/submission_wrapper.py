@@ -1,10 +1,18 @@
+"""This module contains coding for submission processing that extends the praw
+crawling capabilities
+"""
 import re
-import emoji
- 
 from datetime import datetime
-
+import emoji
 
 class SubmissionWrapper:
+    """Wrapper class for praw.submission that contains preprocessing logic needed
+
+    Optional preprocessing steps:
+    Length filtering for submission texts and comments,
+    comment reply depth limiting, blacklist for submission texts and and comments,
+    an option to remove emojis and urls from submission texts and comments
+    """
     def __init__(self, timeframe) -> None:
         self.timeframe = timeframe
         self.comment_length = -1
@@ -15,30 +23,45 @@ class SubmissionWrapper:
         self.replace_urls = ""
         self.replace_emojis = ""
 
-    def set_minimum_lengths(self, comment_length="", post_length=""):
-        if comment_length.isnumeric():
-            self.comment_length = int(comment_length)
-        if post_length.isnumeric():
-            self.post_length = int(post_length)
+        self.valid = True
+        self.title = ''
+        self.selftext = ''
+        self.comments = []
+
+    def set_minimum_lengths(self, comment_length=None, post_length=None):
+        """Setter method for minumum lengths"""
+        if comment_length is not None:
+            self.comment_length = comment_length
+        if post_length is not None:
+            self.post_length = post_length
 
     def set_comment_depth(self, comment_depth):
-        if comment_depth.isnumeric():
-            self.comment_level = int(comment_depth)
+        """Setter method for maximum comment reply depth"""
+        self.comment_level = comment_depth
 
-            # level = 6 means no depth limit
-            if self.comment_level == 6:
-                self.comment_level = -1
+        # level = 6 means no depth limit
+        if self.comment_level == 6:
+            self.comment_level = -1
 
-    def set_blacklists(self, list_comments=[], list_posts=[]):
-        self.blacklist_comments =  list_comments
-        self.blacklist_posts = list_posts
+    def set_blacklists(self, list_comments=None, list_posts=None):
+        """Setter method for the comment and text body blacklists"""
+        if list_comments is None:
+            self.blacklist_comments = []
+        else:
+            self.blacklist_comments = list_comments
+        if list_posts is None:
+            self.blacklist_posts = []
+        else:
+            self.blacklist_posts = list_posts
 
     def set_special_char_filtering(self, replace_urls=False, replace_emojis=False):
+        """Setter method for filtering of urls and emojis"""
         # add check if parameter was supplied and if replacement is necessary
         self.replace_urls = replace_urls
         self.replace_emojis = replace_emojis
 
     def create(self, submission):
+        """Create the submission by running all checks"""
         self.valid = True
         self.__check_submission(submission)
         self.title = self.__check_title(submission.title)
@@ -67,7 +90,7 @@ class SubmissionWrapper:
         comment_level = 1
 
         submission.comments.replace_more(limit=None)
-        comment_queue = submission.comments[:] 
+        comment_queue = submission.comments[:]
         # search comment tree for comments
         more_comments_exist = True
         comment_is_valid = True
@@ -98,13 +121,12 @@ class SubmissionWrapper:
             else:
                 more_comments_exist = False
 
-        return checked_comments        
+        return checked_comments
 
     def __check_submission(self,submission):
         submission_date = datetime.utcfromtimestamp(int(submission.created_utc)).date()
-        if self.timeframe.is_in_timeframe(submission_date) == False:
+        if not self.timeframe.is_in_timeframe(submission_date):
             self.valid = False
-        pass
 
     def __get_submission_data(self):
         submission_title = self.title
@@ -115,6 +137,7 @@ class SubmissionWrapper:
         return submission_title, submission_text, submission_comments
 
     def get(self):
+        """Returns the processed submission"""
         documents = []
         submission_title, submission_text, submission_comments = self.__get_submission_data()
         document = { "title": submission_title, "text": submission_text, "comments" : submission_comments }

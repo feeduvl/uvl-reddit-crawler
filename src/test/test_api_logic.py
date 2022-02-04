@@ -110,7 +110,7 @@ class TestPreprocessing(unittest.TestCase):
         submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_short,comments=self.comments_all_valid)
 
         submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
-        submission_wrapper_instance.set_minimum_lengths(post_length="20")
+        submission_wrapper_instance.set_minimum_lengths(post_length=20)
         submission_wrapper_instance.create(submission_mock)
         self.assertFalse(submission_wrapper_instance.valid)
 
@@ -119,7 +119,7 @@ class TestPreprocessing(unittest.TestCase):
         submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_long,comments=self.comments_two_valid)
         
         submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
-        submission_wrapper_instance.set_minimum_lengths(comment_length="5")
+        submission_wrapper_instance.set_minimum_lengths(comment_length=5)
         submission_wrapper_instance.create(submission_mock)
         self.assertEqual(len(submission_wrapper_instance.comments),2, f'Comment filtering failed: {submission_wrapper_instance.comments}')
 

@@ -1,15 +1,25 @@
-from flask import Flask, request, json, jsonify
-from src.api.utils import database_handler
+"""This module contains the REST entry point and manages
+the calls the actual reddit API.
+"""
+import os
+import praw
+
+from flask import request
+
+from src.api.utils import DatabaseHandler
 from src.flask_setup import app
 from src.api.request_handler import RequestHandler
-import praw
-import os
 
 @app.route('/hitec/reddit/crawl', methods=['POST'])
 def run_crawler():
+    """ This function handles the flask routing to the crawler API.
 
-    '''
-    # Expected example request:
+    It is only possible to make POST request to this function. The function
+    expects an client ID, client secret and user agent in the environment
+    variables for the praw reddit API. The HTTP request must have this
+    structure:
+
+    Expected example request:
 
     request_content = {
         "subreddits":["ubuntu"],
@@ -22,27 +32,35 @@ def run_crawler():
         "blacklist_comments":["foo"],
         "blacklist_posts":["bar"],
         "replace_urls" : "false",
-        "replace_emojis" : "false"
+        "replace_emojis" : "true"
     }
-    '''
-    return 'OK'
+    """
     if request.method == 'POST':
         request_content = request.get_json(force=True)
         app.logger.debug(str(request_content))
 
+        try:
+            reddit = praw.Reddit(
+                client_id=os.environ["CLIENT_ID"],
+                client_secret=os.environ["CLIENT_SECRET"],
+                user_agent=os.environ["USER_AGENT"],
+            )
+        except KeyError as error:
+            app.logger.error(str(error))
+            return 'ERROR'
 
-        reddit = praw.Reddit(
-            client_id=os.environ["CLIENT_ID"],
-            client_secret=os.environ["CLIENT_SECRET"],
-            user_agent=os.environ["USER_AGENT"],
-        )
-        database_client = database_handler()
+        database_client = DatabaseHandler()
 
-        client = RequestHandler(request_content,database_client,reddit,app.logger)
-        client.run()
+        try:
+            client = RequestHandler(request_content,database_client,reddit,app.logger)
+            client.run()
+        except KeyError as error:
+            app.logger.error(str(error))
+            return 'ERROR'
+
 
     else:
         app.logger.error('Error: Only POST implemented')
-        return
+        return 'ERROR'
 
-    return '200'
+    return 'OK'
