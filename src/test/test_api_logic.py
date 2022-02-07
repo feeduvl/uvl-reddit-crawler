@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock
 import datetime
+import os
 
 # https://gideonbrimleaf.github.io/2021/01/26/relative-imports-python.html
 import sys
@@ -68,11 +69,13 @@ class TestPreprocessing(unittest.TestCase):
     blacklist_word        = "abcdefg"
     submission_text_med   = "this is the textbody of a reddit submission which contains a blacklisted word: " + blacklist_word
     submission_text_short = "too short"
+    submission_line_break = f'this is sufficiently long submission text{os.linesep}that contains a line break'
     submission_text_url = "this is a submission text that contains the URL https://www.reddit.com/ for replacing"
     submission_text_emoji = "monkey emoji: 🙈 ."
     comments_all_valid    = ["comment A", "comment B", "comment C"]
     comments_two_valid    = ["comment A", "---", "comment C"]
-    comments_blacklist     = ["comment A", blacklist_word, "comment C"]
+    comments_blacklist    = ["comment A", blacklist_word, "comment C"]
+    comments_line_breaks  = [f'comment A{os.linesep}new line', "comment B without linebreak"]
 
     def setUp(self) -> None:
         self.timeframe_mock = MagicMock()
@@ -156,8 +159,24 @@ class TestPreprocessing(unittest.TestCase):
         submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
         submission_wrapper_instance.set_special_char_filtering(replace_urls=True)
         submission_wrapper_instance.create(submission_mock)
-        print(submission_wrapper_instance.selftext)
         self.assertFalse(replace_string in submission_wrapper_instance.selftext, f'Emoji replacing failed: {submission_wrapper_instance.selftext}')
+
+    def test_remove_linebreaks_comment(self):
+        submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_emoji,comments=self.comments_line_breaks)
+
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.create(submission_mock)
+        print(submission_wrapper_instance.comments[0])
+        self.assertFalse(os.linesep in submission_wrapper_instance.comments[0])
+
+    def test_remove_linebreaks_comment(self):
+        submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_line_break,comments=self.comments_all_valid)
+
+        submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)
+        submission_wrapper_instance.create(submission_mock)
+        print(submission_wrapper_instance.selftext)
+        self.assertFalse(os.linesep in submission_wrapper_instance.selftext)
+
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ crawling capabilities
 import re
 from datetime import datetime
 import emoji
+import os
 
 class SubmissionWrapper:
     """Wrapper class for praw.submission that contains preprocessing logic needed
@@ -110,7 +111,7 @@ class SubmissionWrapper:
                         comment_is_valid = False
 
                 if comment_is_valid:
-                    checked_comments.append(comment.body)
+                    checked_comments.append(processed_comment)
                     # if a comment is not valid replies will be discarded
                     next_level_comments.extend(comment.replies)
 
@@ -145,6 +146,7 @@ class SubmissionWrapper:
         return document
 
     def __process_string(self, string):
+        string = self.__replace_linebreaks(string)
         if self.replace_urls:
             string = self.__replace_urls(string)
         if self.replace_emojis:
@@ -158,3 +160,6 @@ class SubmissionWrapper:
     def __replace_special_chars(self, textbody):
         emoji_regex = emoji.get_emoji_regexp()
         return re.sub(emoji_regex, "", textbody)
+
+    def __replace_linebreaks(self,text):
+        return text.replace(os.linesep,' ')
