@@ -1,3 +1,4 @@
+from asyncio.log import logger
 from src.api.crawler import RedditCrawler
 
 class RequestHandler:
@@ -23,7 +24,7 @@ class RequestHandler:
 
         replace_urls   = self.request_content["replace_urls"] == "true"
         replace_emojis = self.request_content["replace_emojis"] == "true"
-
+        logger.info(f'URLS: {replace_urls}, emojis: {replace_emojis}')
         for index, subreddit in enumerate(subreddits):
             reddit_crawler = RedditCrawler(self.reddit_instance, self.logger)
             reddit_crawler.crawl(subreddit, date_from, date_to, min_length_comments, min_length_posts, comment_depth, blacklist_posts, blacklist_comments, replace_urls, replace_emojis)

@@ -143,7 +143,7 @@ class TestPreprocessing(unittest.TestCase):
         self.assertEqual(len(submission_wrapper_instance.comments),2, f'Comment blacklisting failed: {submission_wrapper_instance.comments}')
         
     def test_url_replacing(self):
-        replace_string = "https://support.mozilla.org/en-US/kb/how-disable-enterprise-roots-preference"
+        replace_string = "https://bugzilla.mozilla.org/show_bug.cgi?id=1752466"
         submission_mock = self.__get_submission_mock(title=self.title_long,text=self.submission_text_url,comments=self.comments_all_valid)
 
         submission_wrapper_instance = SubmissionWrapper(self.timeframe_mock)

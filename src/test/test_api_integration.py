@@ -142,7 +142,6 @@ class TestAPI(unittest.TestCase):
         request_instance.run()
 
         # THEN: Expect to not find url in text
-        print(self.database_mock.get_text())
         self.assertFalse(self.mock_factory.url_string in self.database_mock.get_documents()[0][1].get('Text'))
         
     def test_request_remove_emoji_text(self):
