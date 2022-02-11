@@ -76,7 +76,7 @@ class RedditMockFactory():
     submission_text       = "this is the textbody of a reddit submission which is longer than 20 characters"
     text_short            = "too short"
     blacklist_word        = "<word>"
-    url_string            = "https://www.reddit.com/"
+    url_string            = "https://support.mozilla.org/en-US/kb/how-disable-enterprise-roots-preference"
     emoji_string          = "🙈"
     comments_all_valid    = ["long comment A", "valid comment B", "another comment C"]
     comment_url           = ["comment https://www.reddit.com/"]

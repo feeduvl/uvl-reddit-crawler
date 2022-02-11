@@ -155,11 +155,10 @@ class SubmissionWrapper:
 
     def __replace_urls(self, textbody):
         url_regex = r'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))'''
-        return re.sub(url_regex, "", textbody)
+        return re.sub(url_regex, '', textbody)
 
     def __replace_special_chars(self, textbody):
-        emoji_regex = emoji.get_emoji_regexp()
-        return re.sub(emoji_regex, "", textbody)
+        return emoji.get_emoji_regexp().sub('', textbody)
 
     def __replace_linebreaks(self,text):
         return text.replace(os.linesep,' ')
