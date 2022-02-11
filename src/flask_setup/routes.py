@@ -37,7 +37,7 @@ def run_crawler():
     """
     if request.method == 'POST':
         request_content = request.get_json(force=True)
-        app.logger.debug(str(request_content))
+        app.logger.info(str(request_content))
 
         try:
             reddit = praw.Reddit(
