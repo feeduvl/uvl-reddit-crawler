@@ -1,4 +1,3 @@
-from asyncio.log import logger
 from src.api.crawler import RedditCrawler
 
 class RequestHandler:
