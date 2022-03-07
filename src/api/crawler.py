@@ -35,6 +35,7 @@ class RedditCrawler:
         accept_counter = 0
         submission_counter = 0
 
+        self.logger.info(f'Getting posts from {subreddit_name}')
         submissions = subreddit.top(self.utilities.get_time_qualifier(from_date))
         for submission_counter, submission in enumerate(submissions):
             submission_wrapped.create(submission)
