@@ -37,8 +37,10 @@ class RedditCrawler:
 
         self.logger.info(f'Getting posts from {subreddit_name}')
         if post_selection == 'top':
+            self.logger.info('Sorting by top')
             submissions = subreddit.top(self.utilities.get_time_qualifier(from_date))
         else:
+            self.logger.info('Sorting by new')
             submissions = subreddit.new(limit=new_limit)
 
         for submission_counter, submission in enumerate(submissions):
