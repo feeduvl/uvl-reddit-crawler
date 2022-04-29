@@ -12,6 +12,8 @@ class RequestHandler:
         collection_names = self.request_content["collection_names"]
         date_from  = self.request_content["date_from"]
         date_to    = self.request_content["date_to"]
+        post_selection = self.request_content["post_selection"]
+        new_limit = self.request_content["new_limit"]
 
         min_length_comments = int(self.request_content["min_length_comments"])
         min_length_posts    = int(self.request_content["min_length_posts"])
@@ -27,7 +29,7 @@ class RequestHandler:
         for index, subreddit in enumerate(subreddits):
             self.logger.info(f'Starting crawl of {subreddit}')
             reddit_crawler = RedditCrawler(self.reddit_instance, self.logger)
-            reddit_crawler.crawl(subreddit, date_from, date_to, min_length_comments, min_length_posts, comment_depth, blacklist_posts, blacklist_comments, replace_urls, replace_emojis)
+            reddit_crawler.crawl(subreddit, date_from, date_to, post_selection, new_limit, min_length_comments, min_length_posts, comment_depth, blacklist_posts, blacklist_comments, replace_urls, replace_emojis)
 
             if index < len(collection_names):
                 collection_name = collection_names[index]

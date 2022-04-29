@@ -26,6 +26,8 @@ def run_crawler():
         "collection_names":["ubuntu_data"],
         "date_from":"24-01-2022",
         "date_to":"28-01-2022",
+        "post_selection":"new",
+        "new_limit":"100",
         "min_length_posts":"20",
         "min_length_comments":"10",
         "comment_depth" : "1", # [0,1,2,3,4,5,6 which means all]

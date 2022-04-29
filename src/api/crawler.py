@@ -13,7 +13,7 @@ class RedditCrawler:
         self.logger = logger
 
 
-    def crawl(self, subreddit_name, from_date_str, to_date_str,
+    def crawl(self, subreddit_name, from_date_str, to_date_str, post_selection, new_limit,
               min_length_comments=0, min_length_posts=0, comment_depth=1,
               blacklist_comments=None, blacklist_posts=None,
               replace_urls=False,replace_emojis=False):
@@ -36,7 +36,11 @@ class RedditCrawler:
         submission_counter = 0
 
         self.logger.info(f'Getting posts from {subreddit_name}')
-        submissions = subreddit.top(self.utilities.get_time_qualifier(from_date))
+        if post_selection == 'top':
+            submissions = subreddit.top(self.utilities.get_time_qualifier(from_date))
+        else:
+            submissions = subreddit.new(limit=new_limit)
+
         for submission_counter, submission in enumerate(submissions):
             submission_wrapped.create(submission)
 

@@ -28,6 +28,8 @@ class TestAPI(unittest.TestCase):
             "collection_names":["ubuntu_data"],
             "date_from":"24-01-2022",
             "date_to":"28-01-2022",
+            "post_selection": "top",
+            "new_limit":"0",
             "min_length_posts":"20",
             "min_length_comments":"10",
             "comment_depth" : "1",
