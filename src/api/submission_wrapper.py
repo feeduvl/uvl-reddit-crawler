@@ -154,7 +154,7 @@ class SubmissionWrapper:
         return string
 
     def __replace_urls(self, textbody):
-        url_regex_https = r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
+        url_regex_https = r'(https?://\S+)'
         cleaned_text = re.sub(url_regex_https, '', textbody)
         url_regex = r'[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
         return re.sub(url_regex, '', cleaned_text)
