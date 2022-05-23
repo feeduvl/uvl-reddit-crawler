@@ -5,6 +5,7 @@ import re
 from datetime import datetime
 import emoji
 import os
+import redditcleaner
 
 class SubmissionWrapper:
     """Wrapper class for praw.submission that contains preprocessing logic needed
@@ -146,6 +147,7 @@ class SubmissionWrapper:
         return document
 
     def __process_string(self, string):
+        string = redditcleaner.clean(string)
         string = self.__replace_linebreaks(string)
         if self.replace_urls:
             string = self.__replace_urls(string)
