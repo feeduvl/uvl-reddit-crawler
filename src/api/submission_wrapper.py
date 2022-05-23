@@ -165,4 +165,6 @@ class SubmissionWrapper:
         return emoji.get_emoji_regexp().sub('', textbody)
 
     def __replace_linebreaks(self,text):
-        return text.replace(os.linesep,' ')
+        text = text.replace(os.linesep, ' ')
+        text = text.replace('&x200B;', '')
+        return text
