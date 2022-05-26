@@ -31,11 +31,8 @@ class RequestHandler:
             reddit_crawler = RedditCrawler(self.reddit_instance, self.logger)
             reddit_crawler.crawl(subreddit, date_from, date_to, post_selection, new_limit, min_length_comments, min_length_posts, comment_depth, blacklist_posts, blacklist_comments, replace_urls, replace_emojis)
 
-            if index < len(collection_names):
-                collection_name = collection_names[index]
-            else:
-                collection_name = f'{subreddit}_{date_from}_{date_to}'
+            collection_name = collection_names[0]
 
-            crawled_documents = reddit_crawler.get_documents(collection_name)
+            crawled_documents = reddit_crawler.get_documents(subreddit)
 
             self.database_handler.insert(collection_name, crawled_documents)
