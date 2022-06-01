@@ -21,9 +21,10 @@ class RedditCrawler:
         optional number of preprocessing parameters
         """
         subreddit = self.reddit.subreddit(subreddit_name)
-
-        from_date = datetime.strptime(from_date_str, "%d-%m-%Y").date()
-        to_date   = datetime.strptime(to_date_str, "%d-%m-%Y").date()
+        
+        # date in MM/DD/YYYY
+        from_date = datetime.strptime(from_date_str, "%m/%d/%Y").date()
+        to_date   = datetime.strptime(to_date_str, "%m/%d/%Y").date()
         timeframe = Timeframe(from_date,to_date)
 
         submission_wrapped = SubmissionWrapper(timeframe)
