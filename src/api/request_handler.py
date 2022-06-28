@@ -9,7 +9,7 @@ class RequestHandler:
 
     def run(self):
         subreddits = self.request_content["subreddits"]
-        collection_names = self.request_content["collection_names"]
+        dataset_name = self.request_content["dataset_name"]
         date_from  = self.request_content["date_from"]
         date_to    = self.request_content["date_to"]
         post_selection = self.request_content["post_selection"]
@@ -34,4 +34,4 @@ class RequestHandler:
 
             crawled_documents += reddit_crawler.get_documents(subreddit)
 
-        self.database_handler.insert(collection_names[0], crawled_documents)
+        self.database_handler.insert(dataset_name, crawled_documents)

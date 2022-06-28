@@ -25,7 +25,7 @@ class TestAPI(unittest.TestCase):
     def setUp(self) -> None:
         self.request_content = {
             "subreddits":["ubuntu"],
-            "collection_names":["ubuntu_data"],
+            "dataset_name":"ubuntu_data",
             "date_from":"24-01-2022",
             "date_to":"28-01-2022",
             "post_selection": "top",
