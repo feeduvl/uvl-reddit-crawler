@@ -96,8 +96,6 @@ class RedditMockFactory():
         parameters. The second submissions is supposed to be used as test
         result.
         """
-        # TODO refactoring needed
-
         # build comment mock
         if not comment_tree:
             comment_list = []
@@ -177,22 +175,22 @@ class RedditMockFactory():
 
 
 class DBHandlerMock:
-    """Mokc class of DatabaseHandler in api/utils/ for test result capturing.
+    """Mock class of DatabaseHandler in api/utils/ for test result capturing.
     """
     def __init__(self) -> None:
         self.documents = []
-        self.collection_names = []
+        self.dataset_name = ''
 
     def get_documents(self):
         """Returns captured documents."""
         return self.documents
 
-    def insert(self, collection_name, documents):
+    def insert(self, dataset_name, documents):
         """Perform a mock insert and store the data in class
         attributes.
         """
         self.documents.append(documents)
-        self.collection_names.append(collection_name)
+        self.dataset_name = dataset_name
 
     def get_text(self):
         """Return the text column of the captured crawling result of

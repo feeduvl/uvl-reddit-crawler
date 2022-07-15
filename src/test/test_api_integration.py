@@ -26,8 +26,8 @@ class TestAPI(unittest.TestCase):
         self.request_content = {
             "subreddits":["ubuntu"],
             "dataset_name":"ubuntu_data",
-            "date_from":"24-01-2022",
-            "date_to":"28-01-2022",
+            "date_from":"01/24/2022",
+            "date_to":"01/28/2022",
             "post_selection": "top",
             "new_limit":"0",
             "min_length_posts":"20",
@@ -42,7 +42,7 @@ class TestAPI(unittest.TestCase):
         self.database_mock = DBHandlerMock()
         self.logger = MagicMock()
         self.mock_factory = RedditMockFactory()
-        self.sep = os.linesep
+        self.sep = os.linesep + '###'
         return super().setUp()
 
     def test_request_all_valid(self):
@@ -57,25 +57,12 @@ class TestAPI(unittest.TestCase):
         # THEN
         crawling_content = self.database_mock.get_documents()[0]
 
-        self.assertEqual(self.request_content.get("collection_names"),self.database_mock.collection_names)
+        self.assertEqual(self.request_content.get("dataset_name"),self.database_mock.dataset_name)
         self.assertEqual(len(crawling_content),2)
 
         expected_text = self.mock_factory.title + self.sep + self.mock_factory.submission_text + self.sep
         expected_text += self.sep.join(self.mock_factory.comments_all_valid)
         self.assertEqual(self.database_mock.get_text(),expected_text)
-
-    def test_request_omit_collection_name(self):
-        # GIVEN: 2 subreddits to crawl
-        reddit_mock = self.mock_factory.get()
-        self.request_content["subreddits"].append("libreoffice")
-        request_instance = RequestHandler(self.request_content,self.database_mock,reddit_mock,self.logger)
-
-        # WHEN
-        request_instance.run()
-
-        # THEN: Expect 1 specified collection name, 1 generated collection name
-        self.assertEqual(self.request_content.get("collection_names")[0],self.database_mock.collection_names[0])
-        self.assertEqual(self.database_mock.collection_names[1],"libreoffice_24-01-2022_28-01-2022")
 
     def test_request_invalid_date(self):
         # GIVEN: 1 control submission with valid date, 1 test submission with invalid date
