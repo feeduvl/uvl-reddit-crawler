@@ -62,8 +62,9 @@ class RedditCrawler:
         """
         documents = []
         sep = os.linesep + '###'
+        date = datetime.today().strftime('%Y_%m_%d')
         for index, dataset in enumerate(self.crawled_data):
-            document_id = f'{collection_name}_{str(index)}'
+            document_id = f'{collection_name}_{str(index)}_{date}'
             text = dataset.get("title") + sep + dataset.get("text") + sep + sep.join(dataset.get("comments"))
             documents.append({"Id": document_id, "Text": text})
         return documents
