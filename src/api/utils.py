@@ -58,7 +58,7 @@ class DatabaseHandler:
         existing_collection = response.json()
         print(existing_collection)
 
-        if len(existing_collection["documents"]) == 0:
+        if not existing_collection["documents"]:
             # create a new collection on DB
             collection = {
                 'Name' : collection_name,
