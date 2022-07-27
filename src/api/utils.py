@@ -72,7 +72,7 @@ class DatabaseHandler:
             logger.info('no existing collection detected')
 
             # append the documents to the existing collection
-            existing_collection["documents"].append(documents)
+            existing_collection["documents"] + documents
             request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=existing_collection)
             return request.status_code
         
