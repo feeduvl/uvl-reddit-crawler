@@ -59,7 +59,7 @@ class DatabaseHandler:
         logger.info(existing_collection)
 
         if not existing_collection["documents"]:
-            logger.info('existing collection detected')
+            logger.info('no existing collection detected')
             # create a new collection on DB
             collection = {
                 'Name' : collection_name,
@@ -69,10 +69,11 @@ class DatabaseHandler:
             request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=collection)
             return request.status_code
         else:
-            logger.info('no existing collection detected')
+            logger.info('existing collection detected')
 
             # append the documents to the existing collection
-            existing_collection["documents"] + documents
+            existing_collection["documents"] += documents
+            logger.info(existing_collection)
             request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=existing_collection)
             return request.status_code
         
