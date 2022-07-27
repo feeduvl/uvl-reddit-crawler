@@ -73,8 +73,6 @@ class DatabaseHandler:
 
             # append the documents to the existing collection
             existing_collection["documents"] += documents
-            logger.info(documents)
-            logger.info(existing_collection)
             request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=existing_collection)
             return request.status_code
         
