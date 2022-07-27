@@ -53,11 +53,23 @@ class DatabaseHandler:
         The documents are a list of dictionaries that contain the keys Id and
         Text.
         """
-        collection = {
-            'Name' : collection_name,
-            'Documents' : documents
-        }
+        
+        response = requests.get(f'https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/dataset/name/{collection_name}')
+        existing_collection = response.json()
+        print(existing_collection)
 
-        request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=collection)
-        return request.status_code
-    
+        if len(existing_collection["documents"]) == 0:
+            # create a new collection on DB
+            collection = {
+                'Name' : collection_name,
+                'Documents' : documents
+            }
+
+            request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=collection)
+            return request.status_code
+        else:
+            # append the documents to the existing collection
+            existing_collection["documents"].append(documents)
+            request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=existing_collection)
+            return request.status_code
+        
