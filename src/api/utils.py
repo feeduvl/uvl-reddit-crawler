@@ -47,7 +47,7 @@ class Timeframe:
 
 class DatabaseHandler:
     """Utility database access class for feed.uvl."""
-    def insert(self, collection_name, documents):
+    def insert(self, collection_name, documents, logger):
         """Insert a collection into the database.
         
         The documents are a list of dictionaries that contain the keys Id and
@@ -56,9 +56,10 @@ class DatabaseHandler:
         
         response = requests.get(f'https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/dataset/name/{collection_name}')
         existing_collection = response.json()
-        print(existing_collection)
+        logger.info(existing_collection)
 
         if not existing_collection["documents"]:
+            logger.info('exsting collection detected')
             # create a new collection on DB
             collection = {
                 'Name' : collection_name,

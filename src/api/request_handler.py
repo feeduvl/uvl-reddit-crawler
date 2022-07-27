@@ -34,4 +34,4 @@ class RequestHandler:
 
             crawled_documents += reddit_crawler.get_documents(subreddit)
 
-        self.database_handler.insert(dataset_name, crawled_documents)
+        self.database_handler.insert(dataset_name, crawled_documents, self.logger)
