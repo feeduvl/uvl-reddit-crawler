@@ -58,7 +58,7 @@ class RedditCrawler:
     def get_documents(self, collection_name):
         """Getter method for the data that is obtained in a crawling run.
 
-        The data is return in a dictionary: {"Id": ..., "Text": ...}. Text and comments of a post begins with '###'.
+        The data is return in a dictionary: {"id": ..., "text": ...}. Text and comments of a post begins with '###'.
         """
         documents = []
         sep = os.linesep + '###'
@@ -66,5 +66,5 @@ class RedditCrawler:
         for index, dataset in enumerate(self.crawled_data):
             document_id = f'{collection_name}_{str(index)}_{date}'
             text = dataset.get("title") + sep + dataset.get("text") + sep + sep.join(dataset.get("comments"))
-            documents.append({"Id": document_id, "Text": text})
+            documents.append({"id": document_id, "text": text})
         return documents

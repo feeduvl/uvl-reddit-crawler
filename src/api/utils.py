@@ -62,8 +62,8 @@ class DatabaseHandler:
             logger.info('no existing collection detected')
             # create a new collection on DB
             collection = {
-                'Name' : collection_name,
-                'Documents' : documents
+                'name' : collection_name,
+                'documents' : documents
             }
             logger.info(collection)
             request = requests.post('https://feed-uvl.ifi.uni-heidelberg.de/hitec/repository/concepts/store/dataset/', json=collection)

@@ -2,12 +2,16 @@ from src.api.crawler import RedditCrawler
 
 class RequestHandler:
     def __init__(self, request_content, database_handler, reddit_instance, logger) -> None:
+        """Constructor of RequestHandler        
+        """
         self.request_content = request_content
         self.database_handler = database_handler
         self.reddit_instance = reddit_instance
         self.logger = logger
 
     def run(self):
+        """Method to orchestrate crawler runs for a given request        
+        """
         subreddits = self.request_content["subreddits"]
         dataset_name = self.request_content["dataset_name"]
         date_from  = self.request_content["date_from"]
@@ -21,7 +25,6 @@ class RequestHandler:
 
         blacklist_posts    = self.request_content["blacklist_posts"]
         blacklist_comments = self.request_content["blacklist_comments"]
-
 
         replace_urls   = self.request_content["replace_urls"]
         replace_emojis = self.request_content["replace_emojis"]
