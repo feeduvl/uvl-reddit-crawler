@@ -14,19 +14,19 @@ class RequestHandler:
         """
         subreddits = self.request_content["subreddits"]
         dataset_name = self.request_content["dataset_name"]
-        date_from  = self.request_content["date_from"]
-        date_to    = self.request_content["date_to"]
+        date_from = self.request_content["date_from"]
+        date_to = self.request_content["date_to"]
         post_selection = self.request_content["post_selection"]
         new_limit = int(self.request_content["new_limit"])
 
         min_length_comments = int(self.request_content["min_length_comments"])
-        min_length_posts    = int(self.request_content["min_length_posts"])
-        comment_depth       = int(self.request_content["comment_depth"])
+        min_length_posts = int(self.request_content["min_length_posts"])
+        comment_depth = int(self.request_content["comment_depth"])
 
-        blacklist_posts    = self.request_content["blacklist_posts"]
+        blacklist_posts = self.request_content["blacklist_posts"]
         blacklist_comments = self.request_content["blacklist_comments"]
 
-        replace_urls   = self.request_content["replace_urls"]
+        replace_urls = self.request_content["replace_urls"]
         replace_emojis = self.request_content["replace_emojis"]
 
         crawled_documents = []

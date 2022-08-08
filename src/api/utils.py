@@ -39,7 +39,7 @@ class Timeframe:
     """
     def __init__(self, from_date, to_date) -> None:
         self.from_date = from_date
-        self.to_date   = to_date
+        self.to_date = to_date
 
     def is_in_timeframe(self, submission_date):
         """Returns if a given date is in the timeframe."""

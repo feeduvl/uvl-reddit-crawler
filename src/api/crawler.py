@@ -24,7 +24,7 @@ class RedditCrawler:
         
         # date in MM/DD/YYYY
         from_date = datetime.strptime(from_date_str, "%m/%d/%Y").date()
-        to_date   = datetime.strptime(to_date_str, "%m/%d/%Y").date()
+        to_date = datetime.strptime(to_date_str, "%m/%d/%Y").date()
         timeframe = Timeframe(from_date,to_date)
 
         submission_wrapped = SubmissionWrapper(timeframe)
