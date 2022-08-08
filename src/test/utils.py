@@ -72,16 +72,16 @@ class RedditMockFactory():
 
     A selection of parameters can be used to created different test scenarios.
     """
-    title                 = "this is a title of a reddit submission"
-    submission_text       = "this is the textbody of a reddit submission which is longer than 20 characters"
-    text_short            = "too short"
-    blacklist_word        = "<word>"
-    url_string            = "https://support.mozilla.org/en-US/kb/how-disable-enterprise-roots-preference"
-    emoji_string          = "🙈"
-    comments_all_valid    = ["long comment A", "valid comment B", "another comment C"]
-    comment_url           = ["comment https://www.reddit.com/"]
-    date_valid            = '1643188166' # 2022-01-26
-    date_invalid          = '1642793826' # 2022-01-21
+    title = "this is a title of a reddit submission"
+    submission_text = "this is the textbody of a reddit submission which is longer than 20 characters"
+    text_short = "too short"
+    blacklist_word = "<word>"
+    url_string = "https://support.mozilla.org/en-US/kb/how-disable-enterprise-roots-preference"
+    emoji_string = "🙈"
+    comments_all_valid = ["long comment A", "valid comment B", "another comment C"]
+    comment_url = ["comment https://www.reddit.com/"]
+    date_valid = '1643188166' # 2022-01-26
+    date_invalid = '1642793826' # 2022-01-21
 
 
     def __init__(self) -> None:

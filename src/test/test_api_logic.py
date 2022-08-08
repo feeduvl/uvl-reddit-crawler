@@ -64,18 +64,18 @@ class TestUtils(unittest.TestCase):
 
 
 class TestPreprocessing(unittest.TestCase):
-    title_long            = "this is a title of a reddit submission"
-    submission_text_long  = "this is the textbody of a reddit submission which is longer than 20 characters"
-    blacklist_word        = "abcdefg"
-    submission_text_med   = "this is the textbody of a reddit submission which contains a blacklisted word: " + blacklist_word
+    title_long = "this is a title of a reddit submission"
+    submission_text_long = "this is the textbody of a reddit submission which is longer than 20 characters"
+    blacklist_word = "abcdefg"
+    submission_text_med = "this is the textbody of a reddit submission which contains a blacklisted word: " + blacklist_word
     submission_text_short = "too short"
     submission_line_break = f'this is sufficiently long submission text{os.linesep}that contains a line break'
     submission_text_url = "this is a submission text that contains the URL https://www.reddit.com/ for replacing"
     submission_text_emoji = 'emojis: 🙈🤷 .'
-    comments_all_valid    = ["comment A", "comment B", "comment C"]
-    comments_two_valid    = ["comment A", "---", "comment C"]
-    comments_blacklist    = ["comment A", blacklist_word, "comment C"]
-    comments_line_breaks  = [f'comment A{os.linesep}new line', "comment B without linebreak"]
+    comments_all_valid = ["comment A", "comment B", "comment C"]
+    comments_two_valid = ["comment A", "---", "comment C"]
+    comments_blacklist = ["comment A", blacklist_word, "comment C"]
+    comments_line_breaks = [f'comment A{os.linesep}new line', "comment B without linebreak"]
 
     def setUp(self) -> None:
         self.timeframe_mock = MagicMock()
